@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+frontend/dist/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Database
+backend/data/*.db
+
+# Uploads (exclude uploaded PDFs)
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Screenshots
+*.png
+*.jpg
+*.jpeg
+screenshots/
+
+# Misc
+*.swp
+*.swo
