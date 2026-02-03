@@ -169,11 +169,11 @@ function ChatInterface() {
             </div>
             <div className="min-w-0">
               <h1 className="text-base md:text-lg font-display text-white tracking-wide truncate leading-tight">Cincinnati Hotel</h1>
-              <p className="text-[10px] md:text-xs text-hotel-gold tracking-[0.15em] md:tracking-wider uppercase">Virtual Concierge</p>
+              <p className="text-xs md:text-sm text-hotel-gold tracking-[0.15em] md:tracking-wider uppercase">Virtual Concierge</p>
             </div>
           </div>
           <div className="px-2 md:px-2.5 py-1 bg-emerald-500/20 rounded-lg flex-shrink-0">
-            <span className="text-emerald-400 text-[10px] md:text-xs font-medium flex items-center gap-1.5">
+            <span className="text-emerald-400 text-xs md:text-sm font-medium flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span>
               <span className="hidden sm:inline">Online</span>
             </span>
@@ -211,9 +211,9 @@ function ChatInterface() {
                       : 'bg-white text-hotel-charcoal rounded-bl-md border border-gray-100'
                   }`}
                 >
-                  <p className="text-sm md:text-base leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                  <p className="text-base md:text-lg leading-relaxed whitespace-pre-wrap">{message.content}</p>
                 </div>
-                <p className={`text-[10px] md:text-xs text-gray-400 mt-1 px-1 ${message.role === 'user' ? 'text-right' : ''}`}>
+                <p className={`text-xs md:text-sm text-gray-500 mt-1 px-1 ${message.role === 'user' ? 'text-right' : ''}`}>
                   {message.timestamp ? formatTime(message.timestamp) : ''}
                 </p>
               </div>
@@ -223,14 +223,14 @@ function ChatInterface() {
           {/* Quick Suggestions */}
           {showSuggestions && messages.length === 1 && !isLoading && (
             <div className="animate-fadeInUp">
-              <p className="text-[10px] md:text-xs text-gray-400 mb-2.5 md:mb-3 text-center uppercase tracking-wider">Quick questions</p>
+              <p className="text-xs md:text-sm text-gray-500 mb-2.5 md:mb-3 text-center uppercase tracking-wider">Quick questions</p>
               <div className="flex flex-wrap justify-center gap-1.5 md:gap-2">
                 {QUICK_SUGGESTIONS.map((suggestion, index) => (
                   <button
                     key={index}
                     onClick={() => handleSuggestionClick(suggestion.text)}
-                    className="flex items-center gap-1.5 md:gap-2 px-2.5 md:px-3 py-1.5 md:py-2 bg-white border border-gray-200 rounded-lg md:rounded-xl
-                               text-xs md:text-sm text-hotel-charcoal hover:border-hotel-gold hover:bg-hotel-gold/5
+                    className="flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 md:py-2.5 bg-white border border-gray-200 rounded-lg md:rounded-xl
+                               text-sm md:text-base text-hotel-charcoal hover:border-hotel-gold hover:bg-hotel-gold/5
                                transition-all duration-200 shadow-sm hover:shadow"
                   >
                     <suggestion.icon className="w-3.5 h-3.5 md:w-4 md:h-4 text-hotel-gold" />
@@ -253,7 +253,7 @@ function ChatInterface() {
                     <span className="w-1.5 h-1.5 md:w-2 md:h-2 bg-hotel-gold rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
                     <span className="w-1.5 h-1.5 md:w-2 md:h-2 bg-hotel-gold rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
                   </div>
-                  <span className="text-xs md:text-sm text-gray-400">Typing...</span>
+                  <span className="text-sm text-gray-500">Typing...</span>
                 </div>
               </div>
             </div>
@@ -283,7 +283,7 @@ function ChatInterface() {
                   maxLength={1000}
                   autoComplete="off"
                   className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 md:py-3.5
-                             text-hotel-charcoal placeholder-gray-400 text-sm md:text-base
+                             text-hotel-charcoal placeholder-gray-500 text-base
                              focus:outline-none focus:ring-2 focus:ring-hotel-gold/30 focus:border-hotel-gold/50
                              transition-all"
                   disabled={isLoading}
