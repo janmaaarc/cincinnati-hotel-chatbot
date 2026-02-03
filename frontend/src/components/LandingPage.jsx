@@ -109,13 +109,22 @@ function LandingPage() {
             ))}
           </nav>
 
-          <a
-            href="tel:+15135550123"
-            className="hidden lg:flex items-center gap-2 text-white/80 hover:text-hotel-gold text-sm transition-colors"
-          >
-            <Phone className="w-4 h-4 text-hotel-gold" />
-            <span>+1 (513) 555-0123</span>
-          </a>
+          <div className="hidden lg:flex items-center gap-6">
+            <a
+              href="tel:+15135550123"
+              className="flex items-center gap-2 text-white/80 hover:text-hotel-gold text-sm transition-colors"
+            >
+              <Phone className="w-4 h-4 text-hotel-gold" />
+              <span>+1 (513) 555-0123</span>
+            </a>
+            <Link
+              to="/admin"
+              className="flex items-center gap-1.5 text-white/80 hover:text-hotel-gold text-sm transition-colors"
+            >
+              <Shield className="w-4 h-4" />
+              <span>Admin</span>
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -380,17 +389,9 @@ function LandingPage() {
                 ))}
               </div>
 
-              <div className="flex items-center gap-4 text-white/40 text-sm">
-                <p>&copy; {new Date().getFullYear()} Cincinnati Hotel & Suites</p>
-                <span className="hidden md:inline">|</span>
-                <Link
-                  to="/admin"
-                  className="hover:text-hotel-gold transition-colors flex items-center gap-1.5"
-                >
-                  <Shield className="w-3.5 h-3.5" />
-                  Admin
-                </Link>
-              </div>
+              <p className="text-white/40 text-sm">
+                &copy; {new Date().getFullYear()} Cincinnati Hotel & Suites
+              </p>
             </div>
           </div>
         </div>
