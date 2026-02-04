@@ -13,92 +13,32 @@ This system allows hotel guests to chat with an AI assistant that answers questi
 
 ## Features
 
-### Landing Page
-- Two-button interface: **Guest Services** and **Admin Panel**
-- Dark luxury theme with gold accents
-- 5-star branding with custom hotel logo
-- Smooth page transitions
-- **Accessibility (WCAG 2.1 AA)**:
-  - Skip-to-content link for keyboard navigation
-  - Proper semantic structure (`<main>`, `<nav>`, `<footer>`)
-  - ARIA labels and roles for interactive elements
-  - Focus-visible indicators on all interactive elements
-  - Decorative elements hidden from screen readers
+### User Side
+- Chat with AI concierge powered by Google Gemini
+- Answers based only on uploaded PDF knowledge base
+- Contact form when AI cannot find an answer
+- Chat history persistence
 
-### AI Virtual Concierge
-- Welcome message with quick-start suggestions for new visitors
-- Answers guest questions using uploaded PDF knowledge base
-- Quick action buttons for common questions
-- Real-time typing indicators with screen reader announcements
-- Contact form capture when AI cannot answer
-- Chat persistence across sessions
-- **Accessibility**:
-  - Live region announces new messages to screen readers
-  - Dialog semantics for contact form modal
-  - Hidden heading for page context
-  - Loading state announcements
-- **UX Enhancements**:
-  - Toast notifications for user feedback
-  - Copy-to-clipboard button on assistant messages
-  - Hotel logo in header and message avatars
-- **Performance**:
-  - Debounced localStorage saves (reduces write frequency)
-  - Conditional scroll (only scrolls on new messages)
-  - AbortController for cleanup on component unmount
-  - Race condition prevention on message send
-
-### Admin Dashboard
-- Real-time statistics via Socket.io
-- PDF knowledge base upload and management
-- Session and conversation tracking with delete (single/bulk)
-- Contact submissions management with delete (single/bulk)
-- Unanswered questions view with dismiss (X) button
-- Date range filter (Today, 7 Days, 30 Days, All Time)
-- **Accessibility**:
-  - Skip-to-content link and hidden page heading
-  - Keyboard navigation for date dropdown (Arrow keys, Enter, Escape)
-  - ARIA attributes on all interactive elements
-  - Screen reader announcements for loading states
-  - Proper dialog semantics for confirmation modals
-- **UX Enhancements**:
-  - Toast notifications for all actions
-  - Search/filter for unanswered questions
-  - Export unanswered questions as CSV
-  - Confirmation dialog before replacing PDF
-  - Error banner with dismiss button
-  - Click outside to close dropdowns
-- **Performance**:
-  - Stats prefetching on hover (preloads data before navigation)
-  - Memoized stat cards and category bars
-  - Debounced refresh button (2s cooldown)
-  - Socket reconnection with exponential backoff
-  - Unique keys for all list items
+### Admin Side
+- Upload PDF knowledge base (replaces previous)
+- Real-time statistics dashboard
+- View chat sessions and conversations
+- Manage contact submissions
+- Export data as CSV
 
 ## Tech Stack
 
 | Layer | Technology |
 |-------|------------|
-| **Frontend** | React 18, Vite, Tailwind CSS v4, React Router v7 |
-| **Backend** | Node.js, Express, Socket.io |
-| **Database** | Turso (LibSQL) - Edge SQLite |
-| **AI** | n8n workflow + Google Gemini |
-| **Hosting** | Vercel (frontend) + Render (backend) |
+| Frontend | React 18, Vite, Tailwind CSS v4 |
+| Backend | Node.js, Express, Socket.io |
+| Database | Turso (LibSQL) |
+| AI | n8n workflow + Google Gemini |
+| Hosting | Vercel + Render |
 
 ## Quick Start
 
-### Prerequisites
-- Node.js 18+
-- Turso account (free tier)
-- n8n instance (cloud or self-hosted)
-- Google Gemini API key
-
-### Local Development
-
 ```bash
-# Clone the repository
-git clone https://github.com/janmaaarc/cincinnati-hotel-chatbot.git
-cd cincinnati-hotel-chatbot
-
 # Install dependencies
 npm run install:all
 
@@ -110,87 +50,31 @@ cp frontend/.env.example frontend/.env
 npm run dev
 ```
 
-### Environment Variables
+## Environment Variables
 
 **Backend** (`backend/.env`):
-```env
+```
 PORT=3001
-TURSO_DATABASE_URL=libsql://your-database.turso.io
-TURSO_AUTH_TOKEN=your-auth-token
-N8N_WEBHOOK_URL=https://your-n8n.com/webhook/hotel-chat
-RESEND_API_KEY=re_xxxxxxxxxx
-CONTACT_EMAIL=your-email@example.com
+TURSO_DATABASE_URL=libsql://your-db.turso.io
+TURSO_AUTH_TOKEN=your-token
+N8N_WEBHOOK_URL=https://your-n8n/webhook/hotel-chat
+SENDGRID_API_KEY=SG.xxxxx
+SENDGRID_FROM_EMAIL=verified@domain.com
+CONTACT_EMAIL=idan@tauga.ai
 ```
 
 **Frontend** (`frontend/.env`):
-```env
+```
 VITE_API_URL=http://localhost:3001
 ```
-
-## Deployment
-
-### Step 1: Deploy Backend on Render
-
-1. Go to https://render.com → **New** → **Web Service**
-2. Connect your GitHub repo
-3. Configure:
-   - **Root Directory**: `backend`
-   - **Build Command**: `npm install`
-   - **Start Command**: `npm start`
-4. Add environment variables:
-   ```
-   TURSO_DATABASE_URL=libsql://your-db.turso.io
-   TURSO_AUTH_TOKEN=your-token
-   N8N_WEBHOOK_URL=your-n8n-webhook-url
-   RESEND_API_KEY=re_xxxxxxxxxx
-   CONTACT_EMAIL=idan@tauga.ai
-   NODE_ENV=production
-   ```
-5. Deploy and copy your URL (e.g., `https://your-backend.onrender.com`)
-
-### Step 2: Deploy Frontend on Vercel
-
-1. Go to https://vercel.com → Import your repo
-2. It will auto-detect settings from `vercel.json`
-3. Add environment variable:
-   - `VITE_API_URL` = `https://your-backend.onrender.com`
-4. Deploy
-
-### Step 3: Configure n8n
-
-1. Import `n8n/hotel-chatbot-workflow.json` into n8n
-2. Add Google Gemini API credentials
-3. Activate the workflow
-4. Copy webhook URL to backend's `N8N_WEBHOOK_URL`
 
 ## Pages
 
 | Route | Description |
 |-------|-------------|
-| `/` | Landing page with Guest Services & Admin buttons |
-| `/chat` | AI virtual concierge chat interface |
-| `/admin` | Statistics dashboard and PDF upload |
-
-## API Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/chat/session` | Create new chat session |
-| POST | `/api/chat/message` | Send message to AI |
-| POST | `/api/contact` | Submit callback request |
-| GET | `/api/admin/stats` | Fetch dashboard statistics |
-| POST | `/api/admin/upload-pdf` | Upload PDF (max 10MB) |
-| GET | `/api/health` | Health check |
-
-## Design System
-
-| Token | Hex | Usage |
-|-------|-----|-------|
-| `hotel-gold` | #d4af37 | Primary brand color |
-| `hotel-gold-dark` | #b8962e | Hover states |
-| `hotel-dark` | #1a1a1a | Dark backgrounds |
-| `hotel-charcoal` | #2c2c2c | Text |
-| `hotel-cream` | #faf8f5 | Light backgrounds |
+| `/` | Landing page |
+| `/chat` | AI chat interface |
+| `/admin` | Admin dashboard |
 
 ## License
 
