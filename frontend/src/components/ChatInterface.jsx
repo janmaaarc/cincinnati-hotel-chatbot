@@ -250,7 +250,7 @@ function ChatInterface() {
   }
 
   return (
-    <div className="min-h-screen bg-hotel-cream flex flex-col animate-page-enter">
+    <div className="h-screen bg-hotel-cream flex flex-col overflow-hidden animate-page-enter">
       {/* Skip to chat input - Accessibility */}
       <a
         href="#chat-input"
@@ -288,8 +288,8 @@ function ChatInterface() {
       </header>
 
       {/* Chat Area */}
-      <main className="flex-1 flex flex-col max-w-4xl w-full mx-auto">
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 md:space-y-6">
+      <main className="flex-1 flex flex-col max-w-4xl w-full mx-auto min-h-0">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 md:space-y-6 min-h-0">
           {messages.map((message, index) => (
             <div
               key={index}
