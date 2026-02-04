@@ -16,19 +16,7 @@
     },
     {
       "parameters": {
-        "promptType": "define",
-        "messages": {
-          "values": [
-            {
-              "type": "system",
-              "message": "=You are Cincinnati Hotel's friendly virtual concierge. You help guests with questions about the hotel.\n\nHOTEL KNOWLEDGE BASE:\n{{ $json.body?.pdfContent || $json.pdfContent || 'No hotel information available.' }}\n\nINSTRUCTIONS:\n1. Search the HOTEL KNOWLEDGE BASE above carefully for the answer\n2. If you find the answer in the knowledge base, respond helpfully and set answerFound to true\n3. If you cannot find the answer, set answerFound to false and politely say you don't have that information\n4. Be warm, professional, and concise\n5. Always respond with valid JSON only\n\nYou MUST respond with ONLY valid JSON in this exact format (no markdown, no extra text):\n{\"answer\": \"your helpful response here\", \"category\": \"CategoryName\", \"answerFound\": true}\n\nValid categories: Rooms, Restaurant, Amenities, Location, Pricing, Policies, Services, Other"
-            },
-            {
-              "type": "human",
-              "message": "={{ $json.body?.message || $json.message }}"
-            }
-          ]
-        }
+        "text": "=You are Cincinnati Hotel's friendly virtual concierge.\n\nHOTEL KNOWLEDGE BASE:\n{{ $json.body?.pdfContent || $json.pdfContent || 'No hotel information available.' }}\n\nGUEST QUESTION: {{ $json.body?.message || $json.message }}\n\nINSTRUCTIONS:\n1. Search the HOTEL KNOWLEDGE BASE above carefully for the answer\n2. If you find the answer, respond helpfully and set answerFound to true\n3. If you cannot find the answer, set answerFound to false\n4. Be warm, professional, and concise\n\nRespond with ONLY valid JSON:\n{\"answer\": \"your response\", \"category\": \"CategoryName\", \"answerFound\": true}\n\nCategories: Rooms, Restaurant, Amenities, Location, Pricing, Policies, Services, Other"
       },
       "id": "llm-chain-node",
       "name": "Basic LLM Chain",
@@ -38,7 +26,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const response = $input.first().json;\n\nlet parsedResponse;\ntry {\n  const aiOutput = response.text || response.output || response.response || JSON.stringify(response);\n  \n  // Try to extract JSON from the response\n  const jsonMatch = aiOutput.match(/\\{[\\s\\S]*?\\}/);\n  if (jsonMatch) {\n    parsedResponse = JSON.parse(jsonMatch[0]);\n  } else {\n    parsedResponse = {\n      answer: String(aiOutput).substring(0, 500) || \"I apologize, I couldn't process your request.\",\n      category: 'Other',\n      answerFound: false\n    };\n  }\n} catch (error) {\n  parsedResponse = {\n    answer: \"I apologize, I'm having trouble processing your request right now.\",\n    category: 'Other',\n    answerFound: false\n  };\n}\n\nreturn {\n  answer: parsedResponse.answer || \"I couldn't find an answer.\",\n  category: parsedResponse.category || 'Other',\n  answerFound: parsedResponse.answerFound === true\n};"
+        "jsCode": "const response = $input.first().json;\n\nlet parsedResponse;\ntry {\n  const aiOutput = response.text || response.output || response.response || JSON.stringify(response);\n  const jsonMatch = aiOutput.match(/\\{[\\s\\S]*?\\}/);\n  if (jsonMatch) {\n    parsedResponse = JSON.parse(jsonMatch[0]);\n  } else {\n    parsedResponse = {\n      answer: String(aiOutput).substring(0, 500) || \"I couldn't process your request.\",\n      category: 'Other',\n      answerFound: false\n    };\n  }\n} catch (error) {\n  parsedResponse = {\n    answer: \"I'm having trouble processing your request.\",\n    category: 'Other',\n    answerFound: false\n  };\n}\n\nreturn {\n  answer: parsedResponse.answer || \"I couldn't find an answer.\",\n  category: parsedResponse.category || 'Other',\n  answerFound: parsedResponse.answerFound === true\n};"
       },
       "id": "parse-response-node",
       "name": "Parse Response",
