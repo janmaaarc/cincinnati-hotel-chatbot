@@ -44,16 +44,26 @@ This email was sent automatically from the Cincinnati Hotel Chatbot system.
 `
 
   try {
-    await transporter.sendMail({
+    // Verify connection first
+    await transporter.verify()
+    console.log('SMTP connection verified')
+
+    const result = await transporter.sendMail({
       from: `Cincinnati Hotel <${gmailUser}>`,
       to: contactEmail,
       subject: `New Contact Request from ${name}`,
       text: emailContent
     })
 
-    console.log('Contact email sent successfully')
+    console.log('Email sent - Response:', {
+      messageId: result.messageId,
+      accepted: result.accepted,
+      rejected: result.rejected,
+      response: result.response
+    })
   } catch (error) {
-    console.error('Error sending email:', error)
+    console.error('Error sending email:', error.message)
+    console.error('Error code:', error.code)
     throw error
   }
 }
