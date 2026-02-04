@@ -1,14 +1,16 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Send, ArrowLeft, Loader2, User, BedDouble, UtensilsCrossed, Clock, HelpCircle, RefreshCw } from 'lucide-react'
+import { Send, ArrowLeft, Loader2, User, BedDouble, UtensilsCrossed, Clock, Wifi, Car, Sparkles } from 'lucide-react'
 import ContactForm from './ContactForm'
 import logger from '../utils/logger'
 
 const QUICK_SUGGESTIONS = [
-  { icon: BedDouble, text: 'Room types & rates' },
-  { icon: UtensilsCrossed, text: 'Restaurant hours' },
-  { icon: Clock, text: 'Check-in time' },
-  { icon: HelpCircle, text: 'Hotel amenities' }
+  { icon: BedDouble, text: 'What are your room rates?' },
+  { icon: Clock, text: 'What time is check-in?' },
+  { icon: Wifi, text: 'Is WiFi free?' },
+  { icon: Car, text: 'Do you have parking?' },
+  { icon: UtensilsCrossed, text: 'What restaurants are on-site?' },
+  { icon: Sparkles, text: 'Do you have a spa?' }
 ]
 
 const STORAGE_KEY = 'cincinnati_hotel_chat'

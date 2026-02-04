@@ -28,12 +28,6 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Screenshots
-*.png
-*.jpg
-*.jpeg
-screenshots/
-
 # Misc
 *.swp
 *.swo

@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom'
 import { MessageCircle, Settings, Star, Phone, MapPin } from 'lucide-react'
-import HotelLogo from './HotelLogo'
 
 function SimpleLandingPage() {
   return (
@@ -35,8 +34,12 @@ function SimpleLandingPage() {
 
             {/* Logo */}
             <div className="flex items-center justify-center gap-4 mb-6">
-              <div className="w-16 h-16 md:w-20 md:h-20 rounded-xl bg-gradient-to-br from-hotel-gold to-hotel-gold-dark flex items-center justify-center shadow-xl shadow-hotel-gold/30">
-                <HotelLogo className="w-10 h-10 md:w-12 md:h-12 text-white" />
+              <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl overflow-hidden">
+                <img
+                  src="/hotel-logo.png"
+                  alt="Cincinnati Hotel Logo"
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div className="text-left">
                 <h1 className="text-white font-display text-2xl md:text-3xl tracking-wider">CINCINNATI</h1>
