@@ -233,7 +233,7 @@ function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 animate-page-enter">
       {/* Header */}
       <header className="bg-hotel-dark shadow-lg">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 md:py-4 flex items-center gap-3 md:gap-4">

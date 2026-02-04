@@ -246,7 +246,7 @@ function ChatInterface() {
   }
 
   return (
-    <div className="min-h-screen bg-hotel-cream flex flex-col">
+    <div className="min-h-screen bg-hotel-cream flex flex-col animate-page-enter">
       {/* Skip to chat input - Accessibility */}
       <a
         href="#chat-input"

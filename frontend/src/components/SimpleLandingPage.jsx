@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom'
 import { MessageCircle, Settings, Star, Phone, MapPin } from 'lucide-react'
+import HotelLogo from './HotelLogo'
 
 function SimpleLandingPage() {
   return (
-    <div className="min-h-screen bg-hotel-dark relative overflow-hidden">
+    <div className="min-h-screen bg-hotel-dark relative overflow-hidden animate-page-enter">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0">
         <img
@@ -35,7 +36,7 @@ function SimpleLandingPage() {
             {/* Logo */}
             <div className="flex items-center justify-center gap-4 mb-6">
               <div className="w-16 h-16 md:w-20 md:h-20 rounded-xl bg-gradient-to-br from-hotel-gold to-hotel-gold-dark flex items-center justify-center shadow-xl shadow-hotel-gold/30">
-                <span className="text-white font-display text-3xl md:text-4xl font-bold">C</span>
+                <HotelLogo className="w-10 h-10 md:w-12 md:h-12 text-white" />
               </div>
               <div className="text-left">
                 <h1 className="text-white font-display text-2xl md:text-3xl tracking-wider">CINCINNATI</h1>
