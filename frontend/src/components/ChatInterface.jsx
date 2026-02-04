@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Send, ArrowLeft, Loader2, User, BedDouble, UtensilsCrossed, Clock, Wifi, Car, Sparkles } from 'lucide-react'
+import { Send, ArrowLeft, Loader2, User, BedDouble, UtensilsCrossed, Clock, Wifi, Car, Sparkles, ChevronUp, ChevronDown, HelpCircle, RefreshCw } from 'lucide-react'
 import ContactForm from './ContactForm'
 import logger from '../utils/logger'
 import { getApiUrl } from '../config'
@@ -46,6 +46,7 @@ function ChatInterface() {
   const [showContactForm, setShowContactForm] = useState(false)
   const [lastUnansweredQuestion, setLastUnansweredQuestion] = useState('')
   const [showSuggestions, setShowSuggestions] = useState(true)
+  const [showQuickPanel, setShowQuickPanel] = useState(false)
   const [retryMessage, setRetryMessage] = useState(null)
   const messagesEndRef = useRef(null)
   const lastMessageTimeRef = useRef(0)
@@ -393,9 +394,45 @@ function ChatInterface() {
         )}
 
         {/* Input Area */}
-        <div className="border-t border-gray-200 bg-white p-3 md:p-4 sticky bottom-0">
-          <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
-            <div className="flex gap-2 md:gap-3 items-center">
+        <div className="border-t border-gray-200 bg-white sticky bottom-0">
+          {/* Quick Suggestions Panel */}
+          <div className={`overflow-hidden transition-all duration-300 ${showQuickPanel ? 'max-h-48' : 'max-h-0'}`}>
+            <div className="p-3 md:p-4 pb-0 border-b border-gray-100">
+              <div className="flex flex-wrap gap-1.5 md:gap-2">
+                {QUICK_SUGGESTIONS.map((suggestion, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    onClick={() => {
+                      handleSuggestionClick(suggestion.text)
+                      setShowQuickPanel(false)
+                    }}
+                    className="flex items-center gap-1.5 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg
+                               text-sm text-hotel-charcoal hover:border-hotel-gold hover:bg-hotel-gold/5
+                               transition-all duration-200"
+                  >
+                    <suggestion.icon className="w-3.5 h-3.5 text-hotel-gold" />
+                    <span>{suggestion.text}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="p-3 md:p-4">
+            <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
+              {/* Quick suggestions toggle */}
+              <button
+                type="button"
+                onClick={() => setShowQuickPanel(!showQuickPanel)}
+                className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-hotel-gold mb-2 transition-colors"
+              >
+                <HelpCircle className="w-3.5 h-3.5" />
+                <span>Quick questions</span>
+                {showQuickPanel ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronUp className="w-3.5 h-3.5" />}
+              </button>
+
+              <div className="flex gap-2 md:gap-3 items-center">
               <div className="flex-1 relative">
                 <input
                   id="chat-input"
@@ -444,7 +481,8 @@ function ChatInterface() {
                 </button>
               )}
             </div>
-          </form>
+            </form>
+          </div>
         </div>
       </main>
     </div>
