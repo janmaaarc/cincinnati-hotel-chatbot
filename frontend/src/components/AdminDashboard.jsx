@@ -115,7 +115,6 @@ function AdminDashboard() {
   const [stats, setStats] = useState(DEFAULT_STATS)
   const [pdfInfo, setPdfInfo] = useState(null)
   const [isUploading, setIsUploading] = useState(false)
-  const [uploadStatus, setUploadStatus] = useState(null)
   const [dragActive, setDragActive] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
@@ -374,21 +373,17 @@ function AdminDashboard() {
 
   const handleFileUpload = async (file) => {
     if (file.type !== 'application/pdf') {
-      setUploadStatus({ type: 'error', message: 'Please upload a PDF file' })
       showToast('Please upload a PDF file', 'error')
       return
     }
 
     if (file.size > MAX_PDF_SIZE) {
       const sizeMB = (file.size / (1024 * 1024)).toFixed(1)
-      const message = `File too large (${sizeMB}MB). Maximum size is 10MB.`
-      setUploadStatus({ type: 'error', message })
-      showToast(message, 'error')
+      showToast(`File too large (${sizeMB}MB). Maximum size is 10MB.`, 'error')
       return
     }
 
     setIsUploading(true)
-    setUploadStatus(null)
 
     const formData = new FormData()
     formData.append('pdf', file)
@@ -402,20 +397,14 @@ function AdminDashboard() {
       const data = await response.json()
 
       if (response.ok) {
-        const message = `PDF uploaded successfully (${data.pageCount} pages)`
-        setUploadStatus({ type: 'success', message })
-        showToast(message, 'success')
+        showToast(`PDF uploaded successfully (${data.pageCount} pages)`, 'success')
         fetchPdfInfo()
       } else {
-        const errorMsg = data.error || 'Upload failed'
-        setUploadStatus({ type: 'error', message: errorMsg })
-        showToast(errorMsg, 'error')
+        showToast(data.error || 'Upload failed', 'error')
       }
     } catch (err) {
       logger.error('Error uploading PDF:', err)
-      const errorMsg = 'Failed to upload PDF'
-      setUploadStatus({ type: 'error', message: errorMsg })
-      showToast(errorMsg, 'error')
+      showToast('Failed to upload PDF', 'error')
     } finally {
       setIsUploading(false)
     }
@@ -857,25 +846,6 @@ function AdminDashboard() {
                   </span>
                 </label>
               </div>
-
-              {uploadStatus && (
-                <div
-                  role="alert"
-                  className={`mt-3 md:mt-4 p-3 md:p-4 rounded-lg md:rounded-xl flex items-center gap-2 md:gap-3 animate-fadeIn
-                             ${uploadStatus.type === 'success'
-                               ? 'bg-emerald-50 border border-emerald-100'
-                               : 'bg-rose-50 border border-rose-100'}`}
-                >
-                  {uploadStatus.type === 'success' ? (
-                    <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-emerald-600 flex-shrink-0" aria-hidden="true" />
-                  ) : (
-                    <AlertCircle className="w-4 h-4 md:w-5 md:h-5 text-rose-600 flex-shrink-0" aria-hidden="true" />
-                  )}
-                  <span className={`text-xs md:text-sm ${uploadStatus.type === 'success' ? 'text-emerald-700' : 'text-rose-700'}`}>
-                    {uploadStatus.message}
-                  </span>
-                </div>
-              )}
             </div>
           </section>
 
