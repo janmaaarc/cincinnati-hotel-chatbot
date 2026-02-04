@@ -46,6 +46,10 @@ router.post('/message', async (req, res) => {
     )
     const pdfContent = pdfResult.rows[0]?.content || ''
 
+    // Debug: log PDF content status
+    console.log('PDF content length:', pdfContent.length)
+    console.log('PDF content preview:', pdfContent.substring(0, 100))
+
     const n8nResponse = await sendToN8n({
       message,
       pdfContent,
