@@ -24,6 +24,7 @@ import {
 } from 'lucide-react'
 import logger from '../utils/logger'
 import { API_BASE_URL, getApiUrl } from '../config'
+import { getCachedStats, updateStatsCache } from '../utils/statsCache'
 
 const DEFAULT_STATS = {
   totalSessions: 0,
@@ -229,6 +230,9 @@ function AdminDashboard() {
             unansweredQuestions: questionsWithIds
           })
           setLastUpdated(new Date())
+
+          // Update cache with real-time stats
+          updateStatsCache(newStats)
         }
       })
 
@@ -248,7 +252,26 @@ function AdminDashboard() {
       })
     }
 
-    fetchStats()
+    // Check for prefetched stats first
+    const cachedData = getCachedStats()
+    if (cachedData) {
+      const questionsWithIds = Array.isArray(cachedData.unansweredQuestions)
+        ? cachedData.unansweredQuestions.map(q => ({ ...q, id: q.id || generateId() }))
+        : []
+
+      setStats({
+        ...DEFAULT_STATS,
+        ...cachedData,
+        categoryStats: Array.isArray(cachedData.categoryStats) ? cachedData.categoryStats : [],
+        unansweredQuestions: questionsWithIds
+      })
+      setLastUpdated(new Date())
+      setIsLoading(false)
+      logger.log('Using prefetched stats')
+    } else {
+      fetchStats()
+    }
+
     fetchPdfInfo()
     connectSocket()
 
@@ -288,6 +311,11 @@ function AdminDashboard() {
           unansweredQuestions: questionsWithIds
         })
         setLastUpdated(new Date())
+
+        // Update cache for future navigations
+        if (range === 'all') {
+          updateStatsCache(data)
+        }
       }
     } catch (err) {
       logger.error('Error fetching stats:', err)
@@ -490,7 +518,7 @@ function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 animate-page-enter">
+    <div className="fixed inset-0 bg-gray-50 overflow-auto animate-page-enter">
       {/* Skip to main content - Accessibility */}
       <a
         href="#main-content"

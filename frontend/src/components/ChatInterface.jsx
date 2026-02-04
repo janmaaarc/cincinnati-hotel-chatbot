@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
+import { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Send, ArrowLeft, Loader2, User, BedDouble, UtensilsCrossed, Clock, Wifi, Car, Sparkles, ChevronUp, ChevronDown, HelpCircle, RefreshCw, Copy, Check } from 'lucide-react'
+import { Send, ArrowLeft, Loader2, User, BedDouble, UtensilsCrossed, Clock, Wifi, Car, Sparkles, HelpCircle, RefreshCw, Copy, Check, Trash2 } from 'lucide-react'
 import ContactForm from './ContactForm'
 import logger from '../utils/logger'
 import { getApiUrl } from '../config'
@@ -65,7 +65,7 @@ function ChatInterface() {
   const [retryMessage, setRetryMessage] = useState(null)
   const [toast, setToast] = useState(null)
   const [copiedMessageId, setCopiedMessageId] = useState(null)
-  const messagesEndRef = useRef(null)
+  const messagesContainerRef = useRef(null)
   const lastMessageTimeRef = useRef(0)
   const prevMessagesLengthRef = useRef(0)
   const abortControllerRef = useRef(null)
@@ -145,17 +145,13 @@ function ChatInterface() {
     }
   }, [sessionId, messages, debouncedSave])
 
-  // Conditional scroll - only when new messages added
-  useEffect(() => {
-    if (messages.length > prevMessagesLengthRef.current) {
-      scrollToBottom()
+  // Scroll to bottom - use useLayoutEffect to prevent visible scroll jump
+  useLayoutEffect(() => {
+    if (messages.length > prevMessagesLengthRef.current && messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight
     }
     prevMessagesLengthRef.current = messages.length
   }, [messages])
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
 
   const formatTime = (date) => {
     const { relative, absolute } = formatRelativeTime(date)
@@ -383,6 +379,16 @@ function ChatInterface() {
               <p className="text-xs md:text-sm text-hotel-gold tracking-[0.15em] md:tracking-wider uppercase">Virtual Concierge</p>
             </div>
           </div>
+          {/* Clear chat button - only show when there are messages */}
+          {messages.length > 1 && (
+            <button
+              onClick={clearChat}
+              className="p-2 text-white/40 hover:text-white/80 active:scale-95 transition-all rounded-lg hover:bg-white/10"
+              aria-label="Clear chat history"
+            >
+              <Trash2 className="w-4 h-4 md:w-5 md:h-5" />
+            </button>
+          )}
           <div className="px-2 md:px-2.5 py-1 bg-emerald-500/20 rounded-lg flex-shrink-0">
             <span className="text-emerald-400 text-xs md:text-sm font-medium flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" aria-hidden="true"></span>
@@ -396,6 +402,7 @@ function ChatInterface() {
       <main className="flex-1 flex flex-col max-w-4xl w-full mx-auto min-h-0">
         {/* Messages with live region for screen readers */}
         <div
+          ref={messagesContainerRef}
           className="flex-1 overflow-y-auto p-4 space-y-4 md:space-y-6 min-h-0"
           role="log"
           aria-live="polite"
@@ -540,7 +547,6 @@ function ChatInterface() {
             </div>
           )}
 
-          <div ref={messagesEndRef} />
         </div>
 
         {/* Contact Form with dialog semantics */}
@@ -582,67 +588,67 @@ function ChatInterface() {
 
           <div className="p-3 md:p-4">
             <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
-              {/* Quick suggestions toggle */}
-              <button
-                type="button"
-                onClick={() => setShowQuickPanel(!showQuickPanel)}
-                className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-hotel-gold mb-2 transition-colors"
-                aria-expanded={showQuickPanel}
-              >
-                <HelpCircle className="w-3.5 h-3.5" aria-hidden="true" />
-                <span>Quick questions</span>
-                {showQuickPanel ? <ChevronDown className="w-3.5 h-3.5" aria-hidden="true" /> : <ChevronUp className="w-3.5 h-3.5" aria-hidden="true" />}
-              </button>
-
               <div className="flex gap-2 md:gap-3 items-center">
-              <div className="flex-1 relative">
-                <input
-                  id="chat-input"
-                  type="text"
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value.slice(0, MAX_CHARS))}
-                  placeholder="Type your message..."
-                  maxLength={MAX_CHARS}
-                  autoComplete="off"
-                  aria-label="Type your message to the concierge"
-                  className="w-full bg-gray-50 border border-gray-200 rounded-full px-5 py-3 md:py-3.5
-                             text-hotel-charcoal placeholder-gray-500 text-base
-                             focus:outline-none focus:ring-2 focus:ring-hotel-gold/30 focus:border-hotel-gold/50
-                             transition-all"
-                  disabled={isLoading}
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={isLoading || !inputValue.trim()}
-                className="bg-gradient-to-br from-hotel-gold to-hotel-gold-dark text-white p-3 md:p-3.5 rounded-xl
-                           hover:opacity-90 transition-all duration-200
-                           disabled:opacity-40 disabled:cursor-not-allowed
-                           shadow-lg shadow-hotel-gold/25
-                           active:scale-95 flex-shrink-0"
-                aria-label="Send message"
-              >
-                {isLoading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  <Send className="w-5 h-5" />
-                )}
-              </button>
-            </div>
-            <div className="flex justify-between items-center mt-1.5 px-1">
-              <span className={`text-xs ${inputValue.length >= MAX_CHARS * 0.9 ? 'text-rose-500' : 'text-gray-500'}`}>
-                {inputValue.length}/{MAX_CHARS}
-              </span>
-              {messages.length > 1 && (
+                {/* Quick questions toggle button */}
                 <button
                   type="button"
-                  onClick={clearChat}
-                  className="text-xs text-gray-500 hover:text-gray-600 transition-colors"
+                  onClick={() => setShowQuickPanel(!showQuickPanel)}
+                  className={`p-2.5 md:p-3 rounded-xl transition-all flex-shrink-0 ${
+                    showQuickPanel
+                      ? 'bg-hotel-gold/10 text-hotel-gold'
+                      : 'text-gray-400 hover:text-hotel-gold hover:bg-gray-100'
+                  }`}
+                  aria-expanded={showQuickPanel}
+                  aria-label="Quick questions"
                 >
-                  Clear chat
+                  <HelpCircle className="w-5 h-5" aria-hidden="true" />
                 </button>
-              )}
-            </div>
+
+                {/* Input field */}
+                <div className="flex-1 relative">
+                  <input
+                    id="chat-input"
+                    type="text"
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value.slice(0, MAX_CHARS))}
+                    placeholder="Ask me anything..."
+                    maxLength={MAX_CHARS}
+                    autoComplete="off"
+                    aria-label="Type your message to the concierge"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-full px-5 py-3 md:py-3.5
+                               text-hotel-charcoal placeholder-gray-400 text-base
+                               focus:outline-none focus:ring-2 focus:ring-hotel-gold/30 focus:border-hotel-gold/50
+                               focus:bg-white transition-all"
+                    disabled={isLoading}
+                  />
+                  {/* Character count - only show when approaching limit */}
+                  {inputValue.length >= MAX_CHARS * 0.8 && (
+                    <span className={`absolute right-4 top-1/2 -translate-y-1/2 text-xs ${
+                      inputValue.length >= MAX_CHARS * 0.9 ? 'text-rose-500' : 'text-gray-400'
+                    }`}>
+                      {MAX_CHARS - inputValue.length}
+                    </span>
+                  )}
+                </div>
+
+                {/* Send button */}
+                <button
+                  type="submit"
+                  disabled={isLoading || !inputValue.trim()}
+                  className="bg-gradient-to-br from-hotel-gold to-hotel-gold-dark text-white p-3 md:p-3.5 rounded-full
+                             hover:shadow-lg hover:shadow-hotel-gold/30 transition-all duration-200
+                             disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none
+                             shadow-md shadow-hotel-gold/20
+                             active:scale-95 flex-shrink-0"
+                  aria-label="Send message"
+                >
+                  {isLoading ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <Send className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
             </form>
           </div>
         </div>

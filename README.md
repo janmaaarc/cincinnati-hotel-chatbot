@@ -67,6 +67,7 @@ This system allows hotel guests to chat with an AI assistant that answers questi
   - Error banner with dismiss button
   - Click outside to close dropdowns
 - **Performance**:
+  - Stats prefetching on hover (preloads data before navigation)
   - Memoized stat cards and category bars
   - Debounced refresh button (2s cooldown)
   - Socket reconnection with exponential backoff

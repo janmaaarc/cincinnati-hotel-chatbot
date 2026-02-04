@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom'
 import { MessageCircle, Settings, Star, Phone, MapPin } from 'lucide-react'
+import { prefetchStats } from '../utils/statsCache'
 
 function SimpleLandingPage() {
   return (
-    <div className="min-h-screen bg-hotel-dark relative overflow-hidden animate-page-enter">
+    <div className="fixed inset-0 bg-hotel-dark relative overflow-auto animate-page-enter">
       {/* Skip to main content - Accessibility */}
       <a
         href="#main-content"
@@ -91,6 +92,8 @@ function SimpleLandingPage() {
               to="/admin"
               aria-label="Access the admin panel to manage knowledge base and analytics"
               className="group block border border-white/10 rounded-2xl p-5 md:p-6 flex items-center gap-4 md:gap-5 transition-all duration-300 hover:border-white/20 hover:bg-white/5 hover:-translate-y-0.5 active:scale-[0.98] active:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-hotel-gold focus-visible:ring-offset-2 focus-visible:ring-offset-hotel-dark"
+              onMouseEnter={() => prefetchStats()}
+              onFocus={() => prefetchStats()}
             >
               <div className="w-14 h-14 md:w-16 md:h-16 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0 group-hover:bg-white/15 group-active:bg-white/20 transition-colors">
                 <Settings className="w-7 h-7 md:w-8 md:h-8 text-white/70" aria-hidden="true" />

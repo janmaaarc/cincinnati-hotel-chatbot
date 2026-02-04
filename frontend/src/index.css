@@ -13,7 +13,6 @@
 
 @layer base {
   html {
-    scroll-behavior: smooth;
     scrollbar-width: thin;
     scrollbar-color: var(--color-hotel-gold) transparent;
     /* Prevent iOS text size adjust on orientation change */
@@ -24,7 +23,7 @@
   body,
   #root {
     height: 100%;
-    /* Pages control their own overflow - fixed pages use overflow-hidden, scrollable pages use min-h-screen */
+    overflow: hidden;
   }
 
   body {
