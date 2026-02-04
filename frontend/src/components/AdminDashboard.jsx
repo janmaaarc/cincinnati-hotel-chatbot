@@ -20,7 +20,13 @@ import {
   Download,
   Search,
   Copy,
-  Check
+  Check,
+  Phone,
+  Mail,
+  Clock,
+  ChevronRight,
+  Eye,
+  ExternalLink
 } from 'lucide-react'
 import logger from '../utils/logger'
 import { API_BASE_URL, getApiUrl } from '../config'
@@ -131,6 +137,20 @@ function AdminDashboard() {
   const [dismissedQuestions, setDismissedQuestions] = useState(new Set())
   const [copiedExport, setCopiedExport] = useState(false)
   const [focusedDropdownIndex, setFocusedDropdownIndex] = useState(-1)
+
+  // New feature states
+  const [contacts, setContacts] = useState([])
+  const [sessions, setSessions] = useState([])
+  const [selectedSession, setSelectedSession] = useState(null)
+  const [sessionMessages, setSessionMessages] = useState([])
+  const [popularQuestions, setPopularQuestions] = useState([])
+  const [dailyStats, setDailyStats] = useState([])
+  const [showContacts, setShowContacts] = useState(false)
+  const [showSessions, setShowSessions] = useState(false)
+  const [showPopular, setShowPopular] = useState(false)
+  const [loadingContacts, setLoadingContacts] = useState(false)
+  const [loadingSessions, setLoadingSessions] = useState(false)
+  const [loadingSession, setLoadingSession] = useState(false)
 
   const dropdownRef = useRef(null)
   const dropdownButtonRef = useRef(null)
@@ -273,6 +293,10 @@ function AdminDashboard() {
     }
 
     fetchPdfInfo()
+    fetchDailyStats()
+    fetchPopularQuestions()
+    fetchContacts()
+    fetchSessions()
     connectSocket()
 
     return () => {
@@ -283,6 +307,19 @@ function AdminDashboard() {
       }
     }
   }, [])
+
+  // Toggle handlers for new sections
+  const toggleContacts = () => {
+    setShowContacts(!showContacts)
+  }
+
+  const toggleSessions = () => {
+    setShowSessions(!showSessions)
+    if (showSessions) {
+      setSelectedSession(null)
+      setSessionMessages([])
+    }
+  }
 
   const fetchStats = useCallback(async (showRefreshing = false, range = dateRange) => {
     if (showRefreshing) setIsRefreshing(true)
@@ -346,6 +383,88 @@ function AdminDashboard() {
     } catch (err) {
       logger.error('Error fetching PDF info:', err)
     }
+  }
+
+  // Fetch contact submissions
+  const fetchContacts = async () => {
+    setLoadingContacts(true)
+    try {
+      const response = await fetch(getApiUrl('/api/admin/contacts?limit=20'))
+      if (response.ok) {
+        const data = await response.json()
+        setContacts(data.contacts || [])
+      }
+    } catch (err) {
+      logger.error('Error fetching contacts:', err)
+    } finally {
+      setLoadingContacts(false)
+    }
+  }
+
+  // Fetch chat sessions
+  const fetchSessions = async () => {
+    setLoadingSessions(true)
+    try {
+      const response = await fetch(getApiUrl('/api/admin/sessions?limit=20'))
+      if (response.ok) {
+        const data = await response.json()
+        setSessions(data.sessions || [])
+      }
+    } catch (err) {
+      logger.error('Error fetching sessions:', err)
+    } finally {
+      setLoadingSessions(false)
+    }
+  }
+
+  // Fetch session detail
+  const fetchSessionDetail = async (sessionId) => {
+    setLoadingSession(true)
+    try {
+      const response = await fetch(getApiUrl(`/api/admin/sessions/${sessionId}`))
+      if (response.ok) {
+        const data = await response.json()
+        setSelectedSession(data.session)
+        setSessionMessages(data.messages || [])
+      }
+    } catch (err) {
+      logger.error('Error fetching session detail:', err)
+    } finally {
+      setLoadingSession(false)
+    }
+  }
+
+  // Fetch popular questions
+  const fetchPopularQuestions = async () => {
+    try {
+      const response = await fetch(getApiUrl('/api/admin/popular-questions?limit=10'))
+      if (response.ok) {
+        const data = await response.json()
+        setPopularQuestions(data.questions || [])
+      }
+    } catch (err) {
+      logger.error('Error fetching popular questions:', err)
+    }
+  }
+
+  // Fetch daily stats for chart
+  const fetchDailyStats = async () => {
+    try {
+      const response = await fetch(getApiUrl('/api/admin/daily-stats?days=14'))
+      if (response.ok) {
+        const data = await response.json()
+        setDailyStats(data.dailyStats || [])
+      }
+    } catch (err) {
+      logger.error('Error fetching daily stats:', err)
+    }
+  }
+
+  // Export data as CSV download
+  const exportData = (type) => {
+    const url = getApiUrl(`/api/admin/export/${type}`)
+    window.open(url, '_blank')
+    showToast(`Downloading ${type}.csv`, 'success')
   }
 
   const handleDrag = (e) => {
@@ -946,6 +1065,312 @@ function AdminDashboard() {
               )}
             </div>
           </section>
+        </div>
+
+        {/* Additional Stats Row */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6 mt-6 md:mt-8">
+          <StatCard
+            icon={Mail}
+            iconBg="bg-purple-50"
+            iconColor="text-purple-500"
+            label="Contact Requests"
+            value={contacts.length || '—'}
+            onClick={toggleContacts}
+            badge={showContacts ? 'Click to hide' : 'Click to view'}
+            ariaLabel={`Contact requests. ${showContacts ? 'Click to hide' : 'Click to view'}`}
+          />
+
+          <StatCard
+            icon={MessageSquare}
+            iconBg="bg-cyan-50"
+            iconColor="text-cyan-500"
+            label="Chat Sessions"
+            value={sessions.length || stats.totalSessions || 0}
+            onClick={toggleSessions}
+            badge={showSessions ? 'Click to hide' : 'Click to view'}
+            ariaLabel={`Chat sessions. ${showSessions ? 'Click to hide' : 'Click to view'}`}
+          />
+        </div>
+
+        {/* Contact Submissions Section */}
+        {showContacts && (
+          <div className="mt-6 md:mt-8 bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-100 overflow-hidden animate-fadeIn">
+            <div className="px-4 md:px-6 py-4 md:py-5 border-b border-gray-100 flex items-center justify-between">
+              <div>
+                <h2 className="text-base md:text-lg font-display text-hotel-charcoal flex items-center gap-2">
+                  <Mail className="w-4 h-4 md:w-5 md:h-5 text-purple-500" />
+                  Contact Submissions
+                </h2>
+                <p className="text-xs md:text-sm text-gray-500 mt-0.5">Guest callback requests</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => exportData('contacts')}
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-gray-500 hover:text-hotel-gold hover:bg-hotel-gold/5 rounded-lg transition-colors"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Export CSV</span>
+                </button>
+                <button
+                  onClick={() => setShowContacts(false)}
+                  className="text-xs md:text-sm text-gray-400 hover:text-gray-600"
+                >
+                  Hide
+                </button>
+              </div>
+            </div>
+
+            {loadingContacts ? (
+              <div className="p-8 text-center">
+                <Loader2 className="w-6 h-6 text-hotel-gold animate-spin mx-auto" />
+              </div>
+            ) : contacts.length > 0 ? (
+              <div className="divide-y divide-gray-100 max-h-96 overflow-y-auto">
+                {contacts.map((contact) => (
+                  <div key={contact.id} className="px-4 md:px-6 py-3 md:py-4 hover:bg-gray-50">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm md:text-base font-medium text-hotel-charcoal">{contact.name}</p>
+                        <div className="flex flex-wrap items-center gap-3 mt-1 text-xs text-gray-500">
+                          <span className="flex items-center gap-1">
+                            <Mail className="w-3 h-3" />
+                            {contact.email}
+                          </span>
+                          {contact.phone && (
+                            <span className="flex items-center gap-1">
+                              <Phone className="w-3 h-3" />
+                              {contact.phone}
+                            </span>
+                          )}
+                        </div>
+                        {contact.unanswered_question && (
+                          <p className="mt-2 text-xs text-gray-600 bg-gray-50 p-2 rounded-lg">
+                            "{contact.unanswered_question}"
+                          </p>
+                        )}
+                      </div>
+                      <span className="text-[10px] text-gray-400 flex-shrink-0">
+                        {new Date(contact.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="p-8 text-center">
+                <div className="p-3 bg-gray-50 rounded-full w-12 h-12 mx-auto mb-3 flex items-center justify-center">
+                  <Mail className="w-6 h-6 text-gray-300" />
+                </div>
+                <p className="text-sm text-gray-500">No contact submissions yet</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Conversation History Section */}
+        {showSessions && (
+          <div className="mt-6 md:mt-8 bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-100 overflow-hidden animate-fadeIn">
+            <div className="px-4 md:px-6 py-4 md:py-5 border-b border-gray-100 flex items-center justify-between">
+              <div>
+                <h2 className="text-base md:text-lg font-display text-hotel-charcoal flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4 md:w-5 md:h-5 text-cyan-500" />
+                  {selectedSession ? 'Conversation' : 'Chat Sessions'}
+                </h2>
+                <p className="text-xs md:text-sm text-gray-500 mt-0.5">
+                  {selectedSession ? `Session ${selectedSession.id?.substring(0, 8)}...` : 'Click a session to view messages'}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                {selectedSession && (
+                  <button
+                    onClick={() => { setSelectedSession(null); setSessionMessages([]) }}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-gray-500 hover:text-hotel-gold hover:bg-hotel-gold/5 rounded-lg transition-colors"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    Back to list
+                  </button>
+                )}
+                {!selectedSession && (
+                  <button
+                    onClick={() => exportData('sessions')}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-gray-500 hover:text-hotel-gold hover:bg-hotel-gold/5 rounded-lg transition-colors"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Export CSV</span>
+                  </button>
+                )}
+                <button
+                  onClick={() => setShowSessions(false)}
+                  className="text-xs md:text-sm text-gray-400 hover:text-gray-600"
+                >
+                  Hide
+                </button>
+              </div>
+            </div>
+
+            {loadingSessions || loadingSession ? (
+              <div className="p-8 text-center">
+                <Loader2 className="w-6 h-6 text-hotel-gold animate-spin mx-auto" />
+              </div>
+            ) : selectedSession ? (
+              // Conversation view
+              <div className="max-h-96 overflow-y-auto p-4 md:p-6 space-y-3">
+                {sessionMessages.map((msg) => (
+                  <div
+                    key={msg.id}
+                    className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div
+                      className={`max-w-[80%] p-3 rounded-xl text-sm ${
+                        msg.role === 'user'
+                          ? 'bg-hotel-gold text-white rounded-br-sm'
+                          : 'bg-gray-100 text-hotel-charcoal rounded-bl-sm'
+                      }`}
+                    >
+                      <p>{msg.content}</p>
+                      <p className={`text-[10px] mt-1 ${msg.role === 'user' ? 'text-white/70' : 'text-gray-400'}`}>
+                        {new Date(msg.created_at).toLocaleTimeString()}
+                        {msg.role === 'assistant' && msg.answer_found === 0 && (
+                          <span className="ml-2 text-rose-500">• Unanswered</span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : sessions.length > 0 ? (
+              // Sessions list
+              <div className="divide-y divide-gray-100 max-h-96 overflow-y-auto">
+                {sessions.map((session) => (
+                  <button
+                    key={session.id}
+                    onClick={() => fetchSessionDetail(session.id)}
+                    className="w-full px-4 md:px-6 py-3 md:py-4 hover:bg-gray-50 text-left flex items-center gap-3 group"
+                  >
+                    <div className="p-2 bg-cyan-50 rounded-lg flex-shrink-0">
+                      <MessageSquare className="w-4 h-4 text-cyan-500" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-hotel-charcoal truncate">
+                        {session.first_message || 'No messages'}
+                      </p>
+                      <div className="flex items-center gap-3 mt-0.5 text-xs text-gray-400">
+                        <span>{session.message_count || 0} messages</span>
+                        <span>{new Date(session.created_at).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-hotel-gold transition-colors" />
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="p-8 text-center">
+                <div className="p-3 bg-gray-50 rounded-full w-12 h-12 mx-auto mb-3 flex items-center justify-center">
+                  <MessageSquare className="w-6 h-6 text-gray-300" />
+                </div>
+                <p className="text-sm text-gray-500">No chat sessions yet</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Popular Questions & Trends Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8 mt-6 md:mt-8">
+          {/* Popular Questions */}
+          <section className="bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="px-4 md:px-6 py-4 md:py-5 border-b border-gray-100">
+              <h2 className="text-base md:text-lg font-display text-hotel-charcoal flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-hotel-gold" />
+                Popular Questions
+              </h2>
+              <p className="text-xs md:text-sm text-gray-500 mt-0.5">Most frequently asked</p>
+            </div>
+            <div className="p-4 md:p-6">
+              {popularQuestions.length > 0 ? (
+                <div className="space-y-2">
+                  {popularQuestions.slice(0, 5).map((q, index) => (
+                    <div key={index} className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg">
+                      <span className="w-6 h-6 bg-hotel-gold/10 text-hotel-gold text-xs font-bold rounded-full flex items-center justify-center flex-shrink-0">
+                        {q.count}
+                      </span>
+                      <p className="text-sm text-hotel-charcoal truncate">{q.content}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500 text-center py-4">No repeated questions yet</p>
+              )}
+            </div>
+          </section>
+
+          {/* Daily Trends Chart */}
+          <section className="bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="px-4 md:px-6 py-4 md:py-5 border-b border-gray-100">
+              <h2 className="text-base md:text-lg font-display text-hotel-charcoal flex items-center gap-2">
+                <BarChart3 className="w-4 h-4 md:w-5 md:h-5 text-hotel-gold" />
+                Activity Trends
+              </h2>
+              <p className="text-xs md:text-sm text-gray-500 mt-0.5">Last 14 days</p>
+            </div>
+            <div className="p-4 md:p-6">
+              {dailyStats.length > 0 ? (
+                <div className="flex items-end gap-1 h-32">
+                  {dailyStats.map((day, index) => {
+                    const maxMessages = Math.max(...dailyStats.map(d => d.messages || 0), 1)
+                    const height = ((day.messages || 0) / maxMessages) * 100
+                    return (
+                      <div
+                        key={day.date || index}
+                        className="flex-1 flex flex-col items-center gap-1"
+                        title={`${day.date}: ${day.messages} messages, ${day.sessions} sessions`}
+                      >
+                        <div
+                          className="w-full bg-hotel-gold/80 hover:bg-hotel-gold rounded-t transition-all cursor-pointer"
+                          style={{ height: `${Math.max(height, 4)}%` }}
+                        />
+                        <span className="text-[8px] text-gray-400 -rotate-45 origin-left whitespace-nowrap">
+                          {day.date?.slice(5)}
+                        </span>
+                      </div>
+                    )
+                  })}
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500 text-center py-8">No activity data yet</p>
+              )}
+            </div>
+          </section>
+        </div>
+
+        {/* Export All Data */}
+        <div className="mt-6 md:mt-8 p-4 md:p-6 bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-100">
+          <h2 className="text-base md:text-lg font-display text-hotel-charcoal mb-4 flex items-center gap-2">
+            <Download className="w-4 h-4 md:w-5 md:h-5 text-hotel-gold" />
+            Export Data
+          </h2>
+          <div className="flex flex-wrap gap-3">
+            <button
+              onClick={() => exportData('sessions')}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-hotel-charcoal rounded-lg text-sm transition-colors"
+            >
+              <Users className="w-4 h-4" />
+              Sessions CSV
+            </button>
+            <button
+              onClick={() => exportData('messages')}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-hotel-charcoal rounded-lg text-sm transition-colors"
+            >
+              <MessageSquare className="w-4 h-4" />
+              Messages CSV
+            </button>
+            <button
+              onClick={() => exportData('contacts')}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-hotel-charcoal rounded-lg text-sm transition-colors"
+            >
+              <Mail className="w-4 h-4" />
+              Contacts CSV
+            </button>
+          </div>
         </div>
       </main>
     </div>

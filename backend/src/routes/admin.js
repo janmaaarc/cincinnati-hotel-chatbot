@@ -117,4 +117,222 @@ router.get('/stats', async (req, res) => {
   }
 })
 
+// Get contact form submissions
+router.get('/contacts', async (req, res) => {
+  try {
+    const { limit = 50, offset = 0 } = req.query
+    const result = await req.db.execute({
+      sql: `SELECT id, session_id, name, phone, email, unanswered_question, created_at
+            FROM contact_submissions
+            ORDER BY created_at DESC
+            LIMIT ? OFFSET ?`,
+      args: [parseInt(limit), parseInt(offset)]
+    })
+
+    const countResult = await req.db.execute('SELECT COUNT(*) as count FROM contact_submissions')
+    const total = countResult.rows[0]?.count || 0
+
+    res.json({
+      contacts: result.rows,
+      total,
+      limit: parseInt(limit),
+      offset: parseInt(offset)
+    })
+  } catch (error) {
+    console.error('Error fetching contacts:', error)
+    res.status(500).json({ error: 'Failed to fetch contacts' })
+  }
+})
+
+// Get chat sessions with message counts
+router.get('/sessions', async (req, res) => {
+  try {
+    const { limit = 50, offset = 0 } = req.query
+    const result = await req.db.execute({
+      sql: `SELECT
+              s.id,
+              s.created_at,
+              COUNT(m.id) as message_count,
+              (SELECT content FROM messages WHERE session_id = s.id AND role = 'user' ORDER BY created_at LIMIT 1) as first_message,
+              MAX(m.created_at) as last_activity
+            FROM chat_sessions s
+            LEFT JOIN messages m ON s.id = m.session_id
+            GROUP BY s.id
+            ORDER BY s.created_at DESC
+            LIMIT ? OFFSET ?`,
+      args: [parseInt(limit), parseInt(offset)]
+    })
+
+    const countResult = await req.db.execute('SELECT COUNT(*) as count FROM chat_sessions')
+    const total = countResult.rows[0]?.count || 0
+
+    res.json({
+      sessions: result.rows,
+      total,
+      limit: parseInt(limit),
+      offset: parseInt(offset)
+    })
+  } catch (error) {
+    console.error('Error fetching sessions:', error)
+    res.status(500).json({ error: 'Failed to fetch sessions' })
+  }
+})
+
+// Get full conversation for a session
+router.get('/sessions/:sessionId', async (req, res) => {
+  try {
+    const { sessionId } = req.params
+    const messagesResult = await req.db.execute({
+      sql: `SELECT id, role, content, category, answer_found, created_at
+            FROM messages
+            WHERE session_id = ?
+            ORDER BY created_at ASC`,
+      args: [sessionId]
+    })
+
+    const sessionResult = await req.db.execute({
+      sql: 'SELECT id, created_at FROM chat_sessions WHERE id = ?',
+      args: [sessionId]
+    })
+
+    if (sessionResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Session not found' })
+    }
+
+    res.json({
+      session: sessionResult.rows[0],
+      messages: messagesResult.rows
+    })
+  } catch (error) {
+    console.error('Error fetching session:', error)
+    res.status(500).json({ error: 'Failed to fetch session' })
+  }
+})
+
+// Get popular questions (most frequently asked)
+router.get('/popular-questions', async (req, res) => {
+  try {
+    const { limit = 10 } = req.query
+    const result = await req.db.execute({
+      sql: `SELECT content, COUNT(*) as count
+            FROM messages
+            WHERE role = 'user'
+            GROUP BY LOWER(TRIM(content))
+            HAVING COUNT(*) > 1
+            ORDER BY count DESC
+            LIMIT ?`,
+      args: [parseInt(limit)]
+    })
+
+    res.json({ questions: result.rows })
+  } catch (error) {
+    console.error('Error fetching popular questions:', error)
+    res.status(500).json({ error: 'Failed to fetch popular questions' })
+  }
+})
+
+// Get daily stats for trends chart
+router.get('/daily-stats', async (req, res) => {
+  try {
+    const { days = 30 } = req.query
+    const result = await req.db.execute({
+      sql: `SELECT
+              DATE(created_at) as date,
+              COUNT(DISTINCT session_id) as sessions,
+              COUNT(*) as messages
+            FROM messages
+            WHERE created_at >= datetime('now', '-' || ? || ' days')
+            GROUP BY DATE(created_at)
+            ORDER BY date ASC`,
+      args: [parseInt(days)]
+    })
+
+    res.json({ dailyStats: result.rows })
+  } catch (error) {
+    console.error('Error fetching daily stats:', error)
+    res.status(500).json({ error: 'Failed to fetch daily stats' })
+  }
+})
+
+// Export all sessions as CSV
+router.get('/export/sessions', async (req, res) => {
+  try {
+    const result = await req.db.execute(`
+      SELECT
+        s.id,
+        s.created_at,
+        COUNT(m.id) as message_count,
+        SUM(CASE WHEN m.answer_found = 0 THEN 1 ELSE 0 END) as unanswered_count
+      FROM chat_sessions s
+      LEFT JOIN messages m ON s.id = m.session_id
+      GROUP BY s.id
+      ORDER BY s.created_at DESC
+    `)
+
+    const csv = [
+      'Session ID,Created At,Message Count,Unanswered Count',
+      ...result.rows.map(r =>
+        `"${r.id}","${r.created_at}",${r.message_count || 0},${r.unanswered_count || 0}`
+      )
+    ].join('\n')
+
+    res.setHeader('Content-Type', 'text/csv')
+    res.setHeader('Content-Disposition', 'attachment; filename=sessions.csv')
+    res.send(csv)
+  } catch (error) {
+    console.error('Error exporting sessions:', error)
+    res.status(500).json({ error: 'Failed to export sessions' })
+  }
+})
+
+// Export all contacts as CSV
+router.get('/export/contacts', async (req, res) => {
+  try {
+    const result = await req.db.execute(`
+      SELECT id, name, phone, email, unanswered_question, created_at
+      FROM contact_submissions
+      ORDER BY created_at DESC
+    `)
+
+    const csv = [
+      'ID,Name,Phone,Email,Question,Created At',
+      ...result.rows.map(r =>
+        `${r.id},"${(r.name || '').replace(/"/g, '""')}","${r.phone || ''}","${r.email || ''}","${(r.unanswered_question || '').replace(/"/g, '""')}","${r.created_at}"`
+      )
+    ].join('\n')
+
+    res.setHeader('Content-Type', 'text/csv')
+    res.setHeader('Content-Disposition', 'attachment; filename=contacts.csv')
+    res.send(csv)
+  } catch (error) {
+    console.error('Error exporting contacts:', error)
+    res.status(500).json({ error: 'Failed to export contacts' })
+  }
+})
+
+// Export all messages as CSV
+router.get('/export/messages', async (req, res) => {
+  try {
+    const result = await req.db.execute(`
+      SELECT m.id, m.session_id, m.role, m.content, m.category, m.answer_found, m.created_at
+      FROM messages m
+      ORDER BY m.created_at DESC
+    `)
+
+    const csv = [
+      'ID,Session ID,Role,Content,Category,Answer Found,Created At',
+      ...result.rows.map(r =>
+        `${r.id},"${r.session_id}","${r.role}","${(r.content || '').replace(/"/g, '""')}","${r.category || ''}",${r.answer_found},"${r.created_at}"`
+      )
+    ].join('\n')
+
+    res.setHeader('Content-Type', 'text/csv')
+    res.setHeader('Content-Disposition', 'attachment; filename=messages.csv')
+    res.send(csv)
+  } catch (error) {
+    console.error('Error exporting messages:', error)
+    res.status(500).json({ error: 'Failed to export messages' })
+  }
+})
+
 export default router
