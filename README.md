@@ -1,13 +1,47 @@
-# Cincinnati Hotel Chatbot
+# Cincinnati Hotel & Suites
 
 A full-stack virtual concierge chatbot system for Cincinnati Hotel, featuring an AI-powered chat interface, professional landing page, and admin dashboard.
 
 ## Features
 
-- **AI Virtual Concierge** - Answers guest questions using uploaded PDF knowledge base
-- **Professional Landing Page** - Modern hotel website with hero, about, amenities, and rooms sections
-- **Admin Dashboard** - Real-time statistics and PDF knowledge base management
-- **Contact Capture** - Collects guest information when AI cannot answer a question
+### Landing Page
+- **Hero Section** - Full-screen hero with animated content
+- **About Section** - Hotel history and key features
+- **Amenities** - 6 world-class amenities showcase
+- **Rooms & Suites** - Room cards with pricing and details
+- **Guest Testimonials** - 3 featured guest reviews
+- **Local Attractions** - Nearby Cincinnati attractions guide
+- **FAQ Section** - Expandable frequently asked questions
+- **CTA Banner** - Call to action with phone and chat options
+- **Back to Top Button** - Smooth scroll navigation
+
+### AI Virtual Concierge
+- Answers guest questions using uploaded PDF knowledge base
+- Quick suggestion buttons for common queries
+- Real-time typing indicators
+- Contact form capture when AI cannot answer
+- **Chat Persistence** - Messages saved to localStorage across sessions
+- **Retry Mechanism** - Automatic retry on failed requests (up to 3 attempts)
+- **Character Counter** - Visual feedback for message length (1000 char limit)
+- **Relative Timestamps** - Human-readable time display ("Just now", "5 mins ago")
+- **Clear Chat** - Option to reset conversation
+
+### Admin Dashboard
+- Real-time statistics and metrics via Socket.io
+- PDF knowledge base management
+- Session and conversation tracking
+- **Unanswered Questions View** - Clickable list of questions needing attention
+- **PDF Validation** - File type and size validation (10MB limit)
+- **Date Range Filter** - Filter stats by Today, 7 Days, 30 Days, or All Time
+
+### Technical Features
+- **Mobile Navigation** - Hamburger menu with slide-out panel
+- **404 Page** - Custom not found page
+- **Error Boundary** - Graceful error handling
+- **SEO Optimized** - Open Graph, Twitter cards, structured data
+- **Accessibility** - ARIA labels, skip links, focus management
+- **Lazy Loading** - Optimized image loading with width/height attributes
+- **Debounced Scroll** - Performance-optimized scroll event handling
 
 ## Tech Stack
 
@@ -74,16 +108,19 @@ cincinnati-hotel-chatbot/
 ├── frontend/                 # React frontend application
 │   ├── src/
 │   │   ├── components/       # React components
-│   │   │   ├── LandingPage.jsx
-│   │   │   ├── ChatInterface.jsx
-│   │   │   ├── AdminDashboard.jsx
-│   │   │   ├── ContactForm.jsx
-│   │   │   └── FloatingChatButton.jsx
+│   │   │   ├── LandingPage.jsx      # Main landing page
+│   │   │   ├── ChatInterface.jsx    # AI chat interface
+│   │   │   ├── AdminDashboard.jsx   # Admin panel
+│   │   │   ├── ContactForm.jsx      # Contact capture form
+│   │   │   ├── FloatingChatButton.jsx
+│   │   │   ├── NotFound.jsx         # 404 page
+│   │   │   └── ErrorBoundary.jsx    # Error handling
 │   │   ├── utils/
 │   │   │   └── logger.js
 │   │   ├── App.jsx
 │   │   ├── main.jsx
 │   │   └── index.css
+│   ├── index.html            # SEO meta tags & structured data
 │   └── package.json
 ├── backend/                  # Express backend server
 │   ├── src/
@@ -102,9 +139,22 @@ cincinnati-hotel-chatbot/
 
 | Route | Description |
 |-------|-------------|
-| `/` | Hotel landing page with sections and floating chat button |
+| `/` | Hotel landing page with all sections |
 | `/chat` | AI virtual concierge chat interface |
 | `/admin` | Statistics dashboard and PDF upload |
+| `/*` | 404 Not Found page |
+
+## Landing Page Sections
+
+1. **Hero** - Welcome message with 5-star rating
+2. **About** - 25+ years of excellence story
+3. **Amenities** - WiFi, Parking, Dining, Room Service, Fitness, Pool
+4. **Rooms** - Deluxe, Executive Suite, Presidential Suite
+5. **Testimonials** - Guest reviews with ratings
+6. **Attractions** - Music Hall, Fountain Square, Findlay Market, Eden Park
+7. **FAQ** - Check-in/out, parking, pets, breakfast, airport transport
+8. **CTA Banner** - Call to reserve or chat with concierge
+9. **Footer** - Contact info, hours, social links
 
 ## API Endpoints
 
@@ -113,9 +163,9 @@ cincinnati-hotel-chatbot/
 | POST | `/api/chat/session` | Create new chat session |
 | POST | `/api/chat/message` | Send message to AI |
 | POST | `/api/contact` | Submit callback request |
-| GET | `/api/admin/stats` | Fetch dashboard statistics |
+| GET | `/api/admin/stats` | Fetch dashboard statistics (supports `?range=today\|7days\|30days`) |
 | GET | `/api/admin/pdf-info` | Get PDF knowledge base info |
-| POST | `/api/admin/upload-pdf` | Upload PDF to knowledge base |
+| POST | `/api/admin/upload-pdf` | Upload PDF to knowledge base (max 10MB) |
 
 ## Design System
 
@@ -152,9 +202,26 @@ npm run dev
 
 - Content Security Policy (CSP)
 - X-Frame-Options protection
-- Input validation with length limits
+- Input validation with length limits (1000 chars for chat messages)
+- File upload validation (PDF type and 10MB size limit)
 - Client-side rate limiting
 - Environment-aware logging (no logs in production)
+
+## Accessibility
+
+- Skip to main content link
+- ARIA labels on interactive elements
+- Keyboard navigation support
+- Screen reader friendly
+- Focus management for modals
+
+## SEO
+
+- Primary meta tags (title, description, keywords)
+- Open Graph tags for social sharing
+- Twitter card meta tags
+- JSON-LD structured data for Hotel schema
+- Semantic HTML structure
 
 ## License
 

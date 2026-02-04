@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Send, ArrowLeft, Loader2, User, BedDouble, UtensilsCrossed, Clock, HelpCircle } from 'lucide-react'
+import { Send, ArrowLeft, Loader2, User, BedDouble, UtensilsCrossed, Clock, HelpCircle, RefreshCw } from 'lucide-react'
 import ContactForm from './ContactForm'
 import logger from '../utils/logger'
 
@@ -11,6 +11,28 @@ const QUICK_SUGGESTIONS = [
   { icon: HelpCircle, text: 'Hotel amenities' }
 ]
 
+const STORAGE_KEY = 'cincinnati_hotel_chat'
+const MAX_CHARS = 1000
+const MAX_RETRIES = 3
+const RETRY_DELAY = 1000
+
+const formatRelativeTime = (date) => {
+  if (!date) return ''
+  const now = new Date()
+  const diff = Math.floor((now - date) / 1000)
+
+  if (diff < 60) return 'Just now'
+  if (diff < 3600) {
+    const mins = Math.floor(diff / 60)
+    return `${mins} min${mins > 1 ? 's' : ''} ago`
+  }
+  if (diff < 86400) {
+    const hours = Math.floor(diff / 3600)
+    return `${hours} hour${hours > 1 ? 's' : ''} ago`
+  }
+  return date.toLocaleDateString()
+}
+
 function ChatInterface() {
   const navigate = useNavigate()
   const [messages, setMessages] = useState([])
@@ -20,13 +42,45 @@ function ChatInterface() {
   const [showContactForm, setShowContactForm] = useState(false)
   const [lastUnansweredQuestion, setLastUnansweredQuestion] = useState('')
   const [showSuggestions, setShowSuggestions] = useState(true)
+  const [retryMessage, setRetryMessage] = useState(null)
   const messagesEndRef = useRef(null)
   const lastMessageTimeRef = useRef(0)
   const MESSAGE_COOLDOWN_MS = 1000
 
+  // Load from localStorage on mount
   useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY)
+    if (saved) {
+      try {
+        const { sessionId: savedSession, messages: savedMessages } = JSON.parse(saved)
+        if (savedSession && savedMessages?.length > 0) {
+          setSessionId(savedSession)
+          setMessages(savedMessages.map(m => ({
+            ...m,
+            timestamp: new Date(m.timestamp)
+          })))
+          setShowSuggestions(savedMessages.length <= 1)
+          return
+        }
+      } catch (e) {
+        logger.error('Error loading saved chat:', e)
+      }
+    }
     createSession()
   }, [])
+
+  // Save to localStorage when messages change
+  useEffect(() => {
+    if (sessionId && messages.length > 0) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        sessionId,
+        messages: messages.map(m => ({
+          ...m,
+          timestamp: m.timestamp?.toISOString()
+        }))
+      }))
+    }
+  }, [sessionId, messages])
 
   useEffect(() => {
     scrollToBottom()
@@ -37,7 +91,16 @@ function ChatInterface() {
   }
 
   const formatTime = (date) => {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    return formatRelativeTime(date)
+  }
+
+  const clearChat = () => {
+    localStorage.removeItem(STORAGE_KEY)
+    setMessages([])
+    setSessionId(null)
+    setShowSuggestions(true)
+    setRetryMessage(null)
+    createSession()
   }
 
   const createSession = async () => {
@@ -63,27 +126,7 @@ function ChatInterface() {
     }
   }
 
-  const sendMessage = async (messageText) => {
-    const text = messageText || inputValue.trim()
-    if (!text || isLoading || !sessionId) return
-
-    const now = Date.now()
-    if (now - lastMessageTimeRef.current < MESSAGE_COOLDOWN_MS) {
-      return
-    }
-    lastMessageTimeRef.current = now
-
-    setInputValue('')
-    setShowSuggestions(false)
-
-    const userMessage = {
-      role: 'user',
-      content: text,
-      timestamp: new Date()
-    }
-    setMessages(prev => [...prev, userMessage])
-    setIsLoading(true)
-
+  const sendMessageWithRetry = useCallback(async (text, retryCount = 0) => {
     try {
       const response = await fetch('/api/chat/message', {
         method: 'POST',
@@ -94,7 +137,12 @@ function ChatInterface() {
         })
       })
 
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`)
+      }
+
       const data = await response.json()
+      setRetryMessage(null)
 
       setMessages(prev => [...prev, {
         role: 'assistant',
@@ -107,15 +155,59 @@ function ChatInterface() {
         setLastUnansweredQuestion(text)
         setTimeout(() => setShowContactForm(true), 500)
       }
+      return true
     } catch (error) {
-      logger.error('Error sending message:', error)
+      logger.error(`Error sending message (attempt ${retryCount + 1}):`, error)
+
+      if (retryCount < MAX_RETRIES - 1) {
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * (retryCount + 1)))
+        return sendMessageWithRetry(text, retryCount + 1)
+      }
+
+      setRetryMessage(text)
       setMessages(prev => [...prev, {
         role: 'assistant',
-        content: "I apologize for the inconvenience. I'm experiencing some technical difficulties. Please try again shortly.",
+        content: "I apologize for the inconvenience. I'm experiencing some technical difficulties.",
+        isError: true,
         timestamp: new Date()
       }])
-    } finally {
-      setIsLoading(false)
+      return false
+    }
+  }, [sessionId])
+
+  const sendMessage = async (messageText) => {
+    const text = messageText || inputValue.trim()
+    if (!text || isLoading || !sessionId) return
+
+    const now = Date.now()
+    if (now - lastMessageTimeRef.current < MESSAGE_COOLDOWN_MS) {
+      return
+    }
+    lastMessageTimeRef.current = now
+
+    setInputValue('')
+    setShowSuggestions(false)
+    setRetryMessage(null)
+
+    const userMessage = {
+      role: 'user',
+      content: text,
+      timestamp: new Date()
+    }
+    setMessages(prev => [...prev, userMessage])
+    setIsLoading(true)
+
+    await sendMessageWithRetry(text)
+    setIsLoading(false)
+  }
+
+  const handleRetry = () => {
+    if (retryMessage) {
+      // Remove the error message
+      setMessages(prev => prev.filter(m => !m.isError))
+      setIsLoading(true)
+      setRetryMessage(null)
+      sendMessageWithRetry(retryMessage).finally(() => setIsLoading(false))
     }
   }
 
@@ -213,9 +305,20 @@ function ChatInterface() {
                 >
                   <p className="text-base md:text-lg leading-relaxed whitespace-pre-wrap">{message.content}</p>
                 </div>
-                <p className={`text-xs md:text-sm text-gray-500 mt-1 px-1 ${message.role === 'user' ? 'text-right' : ''}`}>
-                  {message.timestamp ? formatTime(message.timestamp) : ''}
-                </p>
+                <div className={`flex items-center gap-2 mt-1 px-1 ${message.role === 'user' ? 'justify-end' : ''}`}>
+                  <p className="text-xs md:text-sm text-gray-500">
+                    {message.timestamp ? formatTime(message.timestamp) : ''}
+                  </p>
+                  {message.isError && retryMessage && (
+                    <button
+                      onClick={handleRetry}
+                      className="flex items-center gap-1 text-xs text-hotel-gold hover:text-hotel-gold-dark transition-colors"
+                    >
+                      <RefreshCw className="w-3 h-3" />
+                      <span>Retry</span>
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           ))}
@@ -278,9 +381,9 @@ function ChatInterface() {
                 <input
                   type="text"
                   value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
+                  onChange={(e) => setInputValue(e.target.value.slice(0, MAX_CHARS))}
                   placeholder="Type your message..."
-                  maxLength={1000}
+                  maxLength={MAX_CHARS}
                   autoComplete="off"
                   className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 md:py-3.5
                              text-hotel-charcoal placeholder-gray-500 text-base
@@ -305,6 +408,20 @@ function ChatInterface() {
                   <Send className="w-5 h-5" />
                 )}
               </button>
+            </div>
+            <div className="flex justify-between items-center mt-1.5 px-1">
+              <span className={`text-xs ${inputValue.length >= MAX_CHARS * 0.9 ? 'text-rose-500' : 'text-gray-400'}`}>
+                {inputValue.length}/{MAX_CHARS}
+              </span>
+              {messages.length > 1 && (
+                <button
+                  type="button"
+                  onClick={clearChat}
+                  className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  Clear chat
+                </button>
+              )}
             </div>
           </form>
         </div>

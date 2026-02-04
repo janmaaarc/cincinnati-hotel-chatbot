@@ -12,7 +12,10 @@ import {
   Loader2,
   BarChart3,
   TrendingUp,
-  RefreshCw
+  RefreshCw,
+  Calendar,
+  ChevronDown,
+  HelpCircle
 } from 'lucide-react'
 import logger from '../utils/logger'
 
@@ -20,8 +23,18 @@ const DEFAULT_STATS = {
   totalSessions: 0,
   totalMessages: 0,
   unansweredCount: 0,
-  categoryStats: []
+  categoryStats: [],
+  unansweredQuestions: []
 }
+
+const MAX_PDF_SIZE = 10 * 1024 * 1024 // 10MB
+
+const DATE_RANGES = [
+  { label: 'All Time', value: 'all' },
+  { label: 'Today', value: 'today' },
+  { label: 'Last 7 Days', value: '7days' },
+  { label: 'Last 30 Days', value: '30days' }
+]
 
 function AdminDashboard() {
   const navigate = useNavigate()
@@ -33,6 +46,9 @@ function AdminDashboard() {
   const [isLoading, setIsLoading] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [lastUpdated, setLastUpdated] = useState(null)
+  const [dateRange, setDateRange] = useState('all')
+  const [showDateDropdown, setShowDateDropdown] = useState(false)
+  const [showUnanswered, setShowUnanswered] = useState(false)
 
   useEffect(() => {
     fetchStats()
@@ -70,17 +86,21 @@ function AdminDashboard() {
     }
   }, [])
 
-  const fetchStats = useCallback(async (showRefreshing = false) => {
+  const fetchStats = useCallback(async (showRefreshing = false, range = dateRange) => {
     if (showRefreshing) setIsRefreshing(true)
     try {
-      const response = await fetch('/api/admin/stats')
+      const url = range !== 'all'
+        ? `/api/admin/stats?range=${range}`
+        : '/api/admin/stats'
+      const response = await fetch(url)
       if (response.ok) {
         const data = await response.json()
         if (data && !data.error) {
           setStats({
             ...DEFAULT_STATS,
             ...data,
-            categoryStats: Array.isArray(data.categoryStats) ? data.categoryStats : []
+            categoryStats: Array.isArray(data.categoryStats) ? data.categoryStats : [],
+            unansweredQuestions: Array.isArray(data.unansweredQuestions) ? data.unansweredQuestions : []
           })
           setLastUpdated(new Date())
         }
@@ -91,7 +111,13 @@ function AdminDashboard() {
       setIsLoading(false)
       setIsRefreshing(false)
     }
-  }, [])
+  }, [dateRange])
+
+  const handleDateRangeChange = (range) => {
+    setDateRange(range)
+    setShowDateDropdown(false)
+    fetchStats(true, range)
+  }
 
   const fetchPdfInfo = async () => {
     try {
@@ -136,6 +162,15 @@ function AdminDashboard() {
   const handleFileUpload = async (file) => {
     if (file.type !== 'application/pdf') {
       setUploadStatus({ type: 'error', message: 'Please upload a PDF file' })
+      return
+    }
+
+    if (file.size > MAX_PDF_SIZE) {
+      const sizeMB = (file.size / (1024 * 1024)).toFixed(1)
+      setUploadStatus({
+        type: 'error',
+        message: `File too large (${sizeMB}MB). Maximum size is 10MB.`
+      })
       return
     }
 
@@ -219,6 +254,32 @@ function AdminDashboard() {
             </div>
           </div>
           <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+            {/* Date Range Filter */}
+            <div className="relative">
+              <button
+                onClick={() => setShowDateDropdown(!showDateDropdown)}
+                className="flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 md:py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white/80 hover:text-white text-xs md:text-sm transition-all"
+              >
+                <Calendar className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                <span className="hidden sm:inline">{DATE_RANGES.find(r => r.value === dateRange)?.label}</span>
+                <ChevronDown className={`w-3 h-3 md:w-4 md:h-4 transition-transform ${showDateDropdown ? 'rotate-180' : ''}`} />
+              </button>
+              {showDateDropdown && (
+                <div className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 min-w-[140px]">
+                  {DATE_RANGES.map(range => (
+                    <button
+                      key={range.value}
+                      onClick={() => handleDateRangeChange(range.value)}
+                      className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 transition-colors ${
+                        dateRange === range.value ? 'text-hotel-gold font-medium' : 'text-gray-700'
+                      }`}
+                    >
+                      {range.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             <div className="hidden sm:flex flex-col items-end text-[10px] md:text-xs">
               <span className="text-white/50">Last updated</span>
               <span className="text-white/80 font-medium">{formatLastUpdated()}</span>
@@ -266,19 +327,55 @@ function AdminDashboard() {
             <p className="text-2xl md:text-3xl font-bold text-hotel-charcoal">{stats.totalMessages || 0}</p>
           </div>
 
-          <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+          <button
+            onClick={() => stats.unansweredCount > 0 && setShowUnanswered(!showUnanswered)}
+            className={`bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all text-left w-full ${
+              stats.unansweredCount > 0 ? 'cursor-pointer hover:border-rose-200' : ''
+            }`}
+          >
             <div className="flex items-center justify-between mb-3 md:mb-4">
               <div className="p-2 md:p-3 bg-rose-50 rounded-lg md:rounded-xl">
                 <AlertCircle className="w-5 h-5 md:w-6 md:h-6 text-rose-500" />
               </div>
               <span className="text-[10px] md:text-xs font-medium text-rose-500 bg-rose-50 px-1.5 md:px-2 py-0.5 md:py-1 rounded-full">
-                Needs Attention
+                {stats.unansweredCount > 0 ? 'Click to view' : 'Needs Attention'}
               </span>
             </div>
             <p className="text-xs md:text-sm text-gray-500 mb-0.5 md:mb-1">Unanswered</p>
             <p className="text-2xl md:text-3xl font-bold text-hotel-charcoal">{stats.unansweredCount || 0}</p>
-          </div>
+          </button>
         </div>
+
+        {/* Unanswered Questions List */}
+        {showUnanswered && stats.unansweredQuestions?.length > 0 && (
+          <div className="mb-6 md:mb-8 bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-100 overflow-hidden animate-fadeIn">
+            <div className="px-4 md:px-6 py-4 md:py-5 border-b border-gray-100 flex items-center justify-between">
+              <div>
+                <h2 className="text-base md:text-lg font-display text-hotel-charcoal flex items-center gap-2">
+                  <HelpCircle className="w-4 h-4 md:w-5 md:h-5 text-rose-500" />
+                  Unanswered Questions
+                </h2>
+                <p className="text-xs md:text-sm text-gray-500 mt-0.5 md:mt-1">Questions that need attention</p>
+              </div>
+              <button
+                onClick={() => setShowUnanswered(false)}
+                className="text-xs md:text-sm text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                Hide
+              </button>
+            </div>
+            <div className="divide-y divide-gray-100 max-h-80 overflow-y-auto">
+              {stats.unansweredQuestions.map((question, index) => (
+                <div key={index} className="px-4 md:px-6 py-3 md:py-4 hover:bg-gray-50 transition-colors">
+                  <p className="text-sm md:text-base text-hotel-charcoal mb-1">{question.question}</p>
+                  <p className="text-xs text-gray-400">
+                    {question.timestamp ? new Date(question.timestamp).toLocaleString() : 'Unknown time'}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
           {/* PDF Upload Section */}
