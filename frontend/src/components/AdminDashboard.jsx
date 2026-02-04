@@ -327,17 +327,15 @@ function AdminDashboard() {
           </div>
 
           <button
-            onClick={() => stats.unansweredCount > 0 && setShowUnanswered(!showUnanswered)}
-            className={`bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all text-left w-full ${
-              stats.unansweredCount > 0 ? 'cursor-pointer hover:border-rose-200' : ''
-            }`}
+            onClick={() => setShowUnanswered(!showUnanswered)}
+            className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-sm border border-gray-100 hover:shadow-md hover:border-rose-200 transition-all text-left w-full cursor-pointer"
           >
             <div className="flex items-center justify-between mb-3 md:mb-4">
               <div className="p-2 md:p-3 bg-rose-50 rounded-lg md:rounded-xl">
                 <AlertCircle className="w-5 h-5 md:w-6 md:h-6 text-rose-500" />
               </div>
               <span className="text-[10px] md:text-xs font-medium text-rose-500 bg-rose-50 px-1.5 md:px-2 py-0.5 md:py-1 rounded-full">
-                {stats.unansweredCount > 0 ? 'Click to view' : 'Needs Attention'}
+                {showUnanswered ? 'Click to hide' : 'Click to view'}
               </span>
             </div>
             <p className="text-xs md:text-sm text-gray-500 mb-0.5 md:mb-1">Unanswered</p>
@@ -346,7 +344,7 @@ function AdminDashboard() {
         </div>
 
         {/* Unanswered Questions List */}
-        {showUnanswered && stats.unansweredQuestions?.length > 0 && (
+        {showUnanswered && (
           <div className="mb-6 md:mb-8 bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-100 overflow-hidden animate-fadeIn">
             <div className="px-4 md:px-6 py-4 md:py-5 border-b border-gray-100 flex items-center justify-between">
               <div>
@@ -363,16 +361,26 @@ function AdminDashboard() {
                 Hide
               </button>
             </div>
-            <div className="divide-y divide-gray-100 max-h-80 overflow-y-auto">
-              {stats.unansweredQuestions.map((question, index) => (
-                <div key={index} className="px-4 md:px-6 py-3 md:py-4 hover:bg-gray-50 transition-colors">
-                  <p className="text-sm md:text-base text-hotel-charcoal mb-1">{question.question}</p>
-                  <p className="text-xs text-gray-400">
-                    {question.timestamp ? new Date(question.timestamp).toLocaleString() : 'Unknown time'}
-                  </p>
+            {stats.unansweredQuestions?.length > 0 ? (
+              <div className="divide-y divide-gray-100 max-h-80 overflow-y-auto">
+                {stats.unansweredQuestions.map((question, index) => (
+                  <div key={index} className="px-4 md:px-6 py-3 md:py-4 hover:bg-gray-50 transition-colors">
+                    <p className="text-sm md:text-base text-hotel-charcoal mb-1">{question.question}</p>
+                    <p className="text-xs text-gray-400">
+                      {question.timestamp ? new Date(question.timestamp).toLocaleString() : 'Unknown time'}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="p-8 text-center">
+                <div className="p-3 bg-emerald-50 rounded-full w-12 h-12 mx-auto mb-3 flex items-center justify-center">
+                  <CheckCircle className="w-6 h-6 text-emerald-500" />
                 </div>
-              ))}
-            </div>
+                <p className="text-sm text-gray-600 font-medium">All questions answered!</p>
+                <p className="text-xs text-gray-400 mt-1">No unanswered questions at the moment</p>
+              </div>
+            )}
           </div>
         )}
 
