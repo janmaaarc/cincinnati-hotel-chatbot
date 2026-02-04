@@ -1,33 +1,44 @@
-export function getStats(db) {
+export async function getStats(db) {
   try {
-    const totalSessionsResult = db.prepare(
+    const totalSessionsResult = await db.execute(
       'SELECT COUNT(*) as count FROM chat_sessions'
-    ).get()
-    const totalSessions = totalSessionsResult?.count || 0
+    )
+    const totalSessions = totalSessionsResult.rows[0]?.count || 0
 
-    const categoryStats = db.prepare(`
+    const categoryStatsResult = await db.execute(`
       SELECT category, COUNT(*) as count
       FROM messages
       WHERE role = 'assistant' AND category IS NOT NULL AND category != ''
       GROUP BY category
       ORDER BY count DESC
-    `).all() || []
+    `)
+    const categoryStats = categoryStatsResult.rows || []
 
-    const totalMessagesResult = db.prepare(
-      'SELECT COUNT(*) as count FROM messages WHERE role = "user"'
-    ).get()
-    const totalMessages = totalMessagesResult?.count || 0
+    const totalMessagesResult = await db.execute(
+      "SELECT COUNT(*) as count FROM messages WHERE role = 'user'"
+    )
+    const totalMessages = totalMessagesResult.rows[0]?.count || 0
 
-    const unansweredCountResult = db.prepare(
+    const unansweredCountResult = await db.execute(
       'SELECT COUNT(*) as count FROM messages WHERE answer_found = 0'
-    ).get()
-    const unansweredCount = unansweredCountResult?.count || 0
+    )
+    const unansweredCount = unansweredCountResult.rows[0]?.count || 0
+
+    const unansweredQuestionsResult = await db.execute(`
+      SELECT m.content as question, m.created_at as timestamp
+      FROM messages m
+      WHERE m.answer_found = 0 AND m.role = 'user'
+      ORDER BY m.created_at DESC
+      LIMIT 20
+    `)
+    const unansweredQuestions = unansweredQuestionsResult.rows || []
 
     return {
       totalSessions,
       totalMessages,
       unansweredCount,
-      categoryStats
+      categoryStats,
+      unansweredQuestions
     }
   } catch (error) {
     console.error('Error in getStats:', error)
@@ -35,7 +46,8 @@ export function getStats(db) {
       totalSessions: 0,
       totalMessages: 0,
       unansweredCount: 0,
-      categoryStats: []
+      categoryStats: [],
+      unansweredQuestions: []
     }
   }
 }

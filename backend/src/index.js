@@ -6,7 +6,7 @@ import dotenv from 'dotenv'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
-import { initializeDatabase } from './db/database.js'
+import { initializeDatabase, getDb } from './db/database.js'
 import chatRoutes from './routes/chat.js'
 import adminRoutes from './routes/admin.js'
 import contactRoutes from './routes/contact.js'
@@ -30,10 +30,8 @@ app.use(express.json())
 
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')))
 
-const db = initializeDatabase()
-
 app.use((req, res, next) => {
-  req.db = db
+  req.db = getDb()
   req.io = io
   next()
 })
@@ -56,8 +54,20 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3001
 
-httpServer.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
-})
+async function start() {
+  try {
+    await initializeDatabase()
+    console.log('Database initialized')
+
+    httpServer.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`)
+    })
+  } catch (error) {
+    console.error('Failed to start server:', error)
+    process.exit(1)
+  }
+}
+
+start()
 
 export { io }

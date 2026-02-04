@@ -49,12 +49,12 @@ router.post('/upload-pdf', upload.single('pdf'), async (req, res) => {
     const pdfData = await pdfParse(fileBuffer)
     const pdfContent = pdfData.text
 
-    req.db.prepare('DELETE FROM pdf_documents').run()
+    await req.db.execute('DELETE FROM pdf_documents')
 
-    const stmt = req.db.prepare(
-      'INSERT INTO pdf_documents (filename, content, file_path) VALUES (?, ?, ?)'
-    )
-    stmt.run(req.file.originalname, pdfContent, filePath)
+    await req.db.execute({
+      sql: 'INSERT INTO pdf_documents (filename, content, file_path) VALUES (?, ?, ?)',
+      args: [req.file.originalname, pdfContent, filePath]
+    })
 
     res.json({
       success: true,
@@ -68,16 +68,17 @@ router.post('/upload-pdf', upload.single('pdf'), async (req, res) => {
   }
 })
 
-router.get('/pdf-info', (req, res) => {
+router.get('/pdf-info', async (req, res) => {
   try {
-    const pdfDoc = req.db.prepare(
+    const result = await req.db.execute(
       'SELECT filename, uploaded_at FROM pdf_documents ORDER BY uploaded_at DESC LIMIT 1'
-    ).get()
+    )
 
-    if (!pdfDoc) {
+    if (result.rows.length === 0) {
       return res.json({ hasPdf: false })
     }
 
+    const pdfDoc = result.rows[0]
     res.json({
       hasPdf: true,
       filename: pdfDoc.filename,
@@ -89,26 +90,26 @@ router.get('/pdf-info', (req, res) => {
   }
 })
 
-router.get('/pdf-content', (req, res) => {
+router.get('/pdf-content', async (req, res) => {
   try {
-    const pdfDoc = req.db.prepare(
+    const result = await req.db.execute(
       'SELECT content FROM pdf_documents ORDER BY uploaded_at DESC LIMIT 1'
-    ).get()
+    )
 
-    if (!pdfDoc) {
+    if (result.rows.length === 0) {
       return res.json({ content: '' })
     }
 
-    res.json({ content: pdfDoc.content })
+    res.json({ content: result.rows[0].content })
   } catch (error) {
     console.error('Error fetching PDF content:', error)
     res.status(500).json({ error: 'Failed to fetch PDF content' })
   }
 })
 
-router.get('/stats', (req, res) => {
+router.get('/stats', async (req, res) => {
   try {
-    const stats = getStats(req.db)
+    const stats = await getStats(req.db)
     res.json(stats)
   } catch (error) {
     console.error('Error fetching stats:', error)

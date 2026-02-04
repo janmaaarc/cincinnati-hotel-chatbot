@@ -1,31 +1,41 @@
-import Database from 'better-sqlite3'
-import path from 'path'
-import { fileURLToPath } from 'url'
+import { createClient } from '@libsql/client'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+let db = null
 
-export function initializeDatabase() {
-  const dbPath = path.join(__dirname, '../../data/hotel.db')
-  const db = new Database(dbPath)
+export async function initializeDatabase() {
+  const url = process.env.TURSO_DATABASE_URL
+  const authToken = process.env.TURSO_AUTH_TOKEN
 
-  db.exec(`
+  if (!url) {
+    throw new Error('TURSO_DATABASE_URL is required')
+  }
+
+  db = createClient({
+    url,
+    authToken
+  })
+
+  await db.execute(`
     CREATE TABLE IF NOT EXISTS chat_sessions (
       id TEXT PRIMARY KEY,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    );
+    )
+  `)
 
+  await db.execute(`
     CREATE TABLE IF NOT EXISTS messages (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       session_id TEXT NOT NULL,
       role TEXT NOT NULL,
       content TEXT NOT NULL,
       category TEXT,
-      answer_found BOOLEAN DEFAULT 1,
+      answer_found INTEGER DEFAULT 1,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (session_id) REFERENCES chat_sessions(id)
-    );
+    )
+  `)
 
+  await db.execute(`
     CREATE TABLE IF NOT EXISTS contact_submissions (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       session_id TEXT,
@@ -35,21 +45,25 @@ export function initializeDatabase() {
       unanswered_question TEXT,
       conversation_summary TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    );
+    )
+  `)
 
+  await db.execute(`
     CREATE TABLE IF NOT EXISTS pdf_documents (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       filename TEXT NOT NULL,
       content TEXT,
       file_path TEXT NOT NULL,
       uploaded_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    );
+    )
   `)
 
   return db
 }
 
 export function getDb() {
-  const dbPath = path.join(__dirname, '../../data/hotel.db')
-  return new Database(dbPath)
+  if (!db) {
+    throw new Error('Database not initialized. Call initializeDatabase() first.')
+  }
+  return db
 }

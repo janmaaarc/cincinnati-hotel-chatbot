@@ -13,21 +13,22 @@ router.post('/', async (req, res) => {
 
     let conversationSummary = ''
     if (sessionId) {
-      const messages = req.db.prepare(
-        'SELECT role, content FROM messages WHERE session_id = ? ORDER BY created_at ASC'
-      ).all(sessionId)
+      const result = await req.db.execute({
+        sql: 'SELECT role, content FROM messages WHERE session_id = ? ORDER BY created_at ASC',
+        args: [sessionId]
+      })
 
-      conversationSummary = messages
+      conversationSummary = result.rows
         .map(m => `${m.role === 'user' ? 'Guest' : 'Assistant'}: ${m.content}`)
         .join('\n')
     }
 
-    const stmt = req.db.prepare(`
-      INSERT INTO contact_submissions
-      (session_id, name, phone, email, unanswered_question, conversation_summary)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `)
-    stmt.run(sessionId || null, name, phone || null, email, unansweredQuestion || null, conversationSummary)
+    await req.db.execute({
+      sql: `INSERT INTO contact_submissions
+        (session_id, name, phone, email, unanswered_question, conversation_summary)
+        VALUES (?, ?, ?, ?, ?, ?)`,
+      args: [sessionId || null, name, phone || null, email, unansweredQuestion || null, conversationSummary]
+    })
 
     await sendContactEmail({
       name,

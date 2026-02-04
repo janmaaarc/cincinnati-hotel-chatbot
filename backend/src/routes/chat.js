@@ -5,11 +5,13 @@ import { getStats } from '../services/statsService.js'
 
 const router = Router()
 
-router.post('/session', (req, res) => {
+router.post('/session', async (req, res) => {
   try {
     const sessionId = uuidv4()
-    const stmt = req.db.prepare('INSERT INTO chat_sessions (id) VALUES (?)')
-    stmt.run(sessionId)
+    await req.db.execute({
+      sql: 'INSERT INTO chat_sessions (id) VALUES (?)',
+      args: [sessionId]
+    })
 
     res.json({ sessionId })
   } catch (error) {
@@ -26,21 +28,23 @@ router.post('/message', async (req, res) => {
       return res.status(400).json({ error: 'sessionId and message are required' })
     }
 
-    const session = req.db.prepare('SELECT * FROM chat_sessions WHERE id = ?').get(sessionId)
-    if (!session) {
+    const sessionResult = await req.db.execute({
+      sql: 'SELECT * FROM chat_sessions WHERE id = ?',
+      args: [sessionId]
+    })
+    if (sessionResult.rows.length === 0) {
       return res.status(404).json({ error: 'Session not found' })
     }
 
-    const insertUserMsg = req.db.prepare(
-      'INSERT INTO messages (session_id, role, content) VALUES (?, ?, ?)'
-    )
-    insertUserMsg.run(sessionId, 'user', message)
+    await req.db.execute({
+      sql: 'INSERT INTO messages (session_id, role, content) VALUES (?, ?, ?)',
+      args: [sessionId, 'user', message]
+    })
 
-    const pdfDoc = req.db.prepare(
+    const pdfResult = await req.db.execute(
       'SELECT content FROM pdf_documents ORDER BY uploaded_at DESC LIMIT 1'
-    ).get()
-
-    const pdfContent = pdfDoc?.content || ''
+    )
+    const pdfContent = pdfResult.rows[0]?.content || ''
 
     const n8nResponse = await sendToN8n({
       message,
@@ -50,12 +54,12 @@ router.post('/message', async (req, res) => {
 
     const { answer, category, answerFound } = n8nResponse
 
-    const insertAssistantMsg = req.db.prepare(
-      'INSERT INTO messages (session_id, role, content, category, answer_found) VALUES (?, ?, ?, ?, ?)'
-    )
-    insertAssistantMsg.run(sessionId, 'assistant', answer, category, answerFound ? 1 : 0)
+    await req.db.execute({
+      sql: 'INSERT INTO messages (session_id, role, content, category, answer_found) VALUES (?, ?, ?, ?, ?)',
+      args: [sessionId, 'assistant', answer, category, answerFound ? 1 : 0]
+    })
 
-    const stats = getStats(req.db)
+    const stats = await getStats(req.db)
     req.io.emit('statsUpdate', stats)
 
     res.json({
@@ -69,15 +73,16 @@ router.post('/message', async (req, res) => {
   }
 })
 
-router.get('/session/:sessionId', (req, res) => {
+router.get('/session/:sessionId', async (req, res) => {
   try {
     const { sessionId } = req.params
 
-    const messages = req.db.prepare(
-      'SELECT * FROM messages WHERE session_id = ? ORDER BY created_at ASC'
-    ).all(sessionId)
+    const result = await req.db.execute({
+      sql: 'SELECT * FROM messages WHERE session_id = ? ORDER BY created_at ASC',
+      args: [sessionId]
+    })
 
-    res.json({ messages })
+    res.json({ messages: result.rows })
   } catch (error) {
     console.error('Error fetching messages:', error)
     res.status(500).json({ error: 'Failed to fetch messages' })

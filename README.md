@@ -61,21 +61,23 @@ A full-stack virtual concierge chatbot system for Cincinnati Hotel, featuring an
 
 ### Backend
 - Node.js + Express
-- SQLite database
+- Turso (LibSQL) - Edge SQLite database
 - Socket.io (WebSocket)
-- n8n integration for AI processing
+- Resend for transactional emails
 
 ### AI Integration
 - n8n workflow automation
+- OpenAI GPT-4o-mini via n8n
 - PDF knowledge base parsing
-- Natural language processing
 
 ## Quick Start
 
 ### Prerequisites
 - Node.js 18+
 - npm or yarn
+- Turso account (free tier available)
 - n8n instance (for AI processing)
+- OpenAI API key (for n8n)
 
 ### Installation
 
@@ -101,12 +103,36 @@ Create `backend/.env` with:
 
 ```env
 PORT=3001
-N8N_WEBHOOK_URL=your_n8n_webhook_url
-EMAIL_HOST=smtp.example.com
-EMAIL_PORT=587
-EMAIL_USER=your_email
-EMAIL_PASS=your_password
+FRONTEND_URL=http://localhost:5173
+N8N_WEBHOOK_URL=https://your-n8n-instance.com/webhook/hotel-chat
+RESEND_API_KEY=re_xxxxxxxxxx
+CONTACT_EMAIL=your-email@example.com
+
+# Turso Database
+TURSO_DATABASE_URL=libsql://your-database-name.turso.io
+TURSO_AUTH_TOKEN=your-auth-token
 ```
+
+### Turso Setup
+
+1. Install Turso CLI:
+```bash
+curl -sSfL https://get.tur.so/install.sh | bash
+```
+
+2. Sign up and create a database:
+```bash
+turso auth signup
+turso db create hotel-chatbot
+```
+
+3. Get your credentials:
+```bash
+turso db show hotel-chatbot --url
+turso db tokens create hotel-chatbot
+```
+
+4. Add credentials to your `.env` file
 
 ## Project Structure
 
@@ -133,7 +159,7 @@ cincinnati-hotel-chatbot/
 │   ├── src/
 │   │   ├── routes/           # API endpoints
 │   │   ├── services/         # Business logic
-│   │   └── db/               # Database setup
+│   │   └── db/               # Database setup (Turso)
 │   └── package.json
 ├── n8n/                      # n8n workflow configuration
 │   └── hotel-chatbot-workflow.json
@@ -169,10 +195,25 @@ cincinnati-hotel-chatbot/
 |--------|----------|-------------|
 | POST | `/api/chat/session` | Create new chat session |
 | POST | `/api/chat/message` | Send message to AI |
+| GET | `/api/chat/session/:id` | Get session messages |
 | POST | `/api/contact` | Submit callback request |
 | GET | `/api/admin/stats` | Fetch dashboard statistics (supports `?range=today\|7days\|30days`) |
 | GET | `/api/admin/pdf-info` | Get PDF knowledge base info |
+| GET | `/api/admin/pdf-content` | Get PDF text content |
 | POST | `/api/admin/upload-pdf` | Upload PDF to knowledge base (max 10MB) |
+| GET | `/api/health` | Health check endpoint |
+
+## n8n Workflow Setup
+
+1. Import `n8n/hotel-chatbot-workflow.json` into your n8n instance
+2. Configure your OpenAI API credentials in n8n
+3. Activate the workflow
+4. Copy the webhook URL to your `.env` file
+
+The workflow:
+- Receives chat messages via webhook
+- Sends to GPT-4o-mini with hotel PDF context
+- Returns structured JSON with answer, category, and answerFound flag
 
 ## Design System
 
@@ -205,6 +246,29 @@ cd backend && npm run dev
 npm run dev
 ```
 
+## Deployment
+
+### Recommended: Render + Turso
+
+1. **Frontend**: Deploy as Static Site on Render
+2. **Backend**: Deploy as Web Service on Render
+3. **Database**: Turso (already cloud-hosted)
+
+### Environment Variables for Production
+
+Set these in your hosting platform:
+
+```env
+NODE_ENV=production
+PORT=3001
+FRONTEND_URL=https://your-frontend-domain.com
+N8N_WEBHOOK_URL=https://your-n8n-instance.com/webhook/hotel-chat
+RESEND_API_KEY=re_xxxxxxxxxx
+CONTACT_EMAIL=your-email@example.com
+TURSO_DATABASE_URL=libsql://your-database-name.turso.io
+TURSO_AUTH_TOKEN=your-auth-token
+```
+
 ## Security Features
 
 - Content Security Policy (CSP)
@@ -213,6 +277,7 @@ npm run dev
 - File upload validation (PDF type and 10MB size limit)
 - Client-side rate limiting
 - Environment-aware logging (no logs in production)
+- Parameterized SQL queries (injection prevention)
 
 ## Accessibility
 
