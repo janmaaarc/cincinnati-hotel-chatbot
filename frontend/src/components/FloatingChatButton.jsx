@@ -5,8 +5,9 @@ function FloatingChatButton() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  // Hide on chat page and admin page
-  if (location.pathname === '/chat' || location.pathname === '/admin') {
+  // Hide on certain pages
+  const hiddenPaths = ['/', '/simple', '/chat', '/admin']
+  if (hiddenPaths.includes(location.pathname)) {
     return null
   }
 
