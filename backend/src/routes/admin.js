@@ -117,6 +117,42 @@ router.get('/stats', async (req, res) => {
   }
 })
 
+// Delete single contact submission
+router.delete('/contacts/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    await req.db.execute({
+      sql: 'DELETE FROM contact_submissions WHERE id = ?',
+      args: [parseInt(id)]
+    })
+    res.json({ success: true, message: 'Contact deleted' })
+  } catch (error) {
+    console.error('Error deleting contact:', error)
+    res.status(500).json({ error: 'Failed to delete contact' })
+  }
+})
+
+// Bulk delete contact submissions
+router.delete('/contacts', async (req, res) => {
+  try {
+    const { ids } = req.body
+    if (!ids || !Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ error: 'No IDs provided' })
+    }
+
+    const placeholders = ids.map(() => '?').join(',')
+    await req.db.execute({
+      sql: `DELETE FROM contact_submissions WHERE id IN (${placeholders})`,
+      args: ids.map(id => parseInt(id))
+    })
+
+    res.json({ success: true, message: `${ids.length} contacts deleted` })
+  } catch (error) {
+    console.error('Error bulk deleting contacts:', error)
+    res.status(500).json({ error: 'Failed to delete contacts' })
+  }
+})
+
 // Get contact form submissions
 router.get('/contacts', async (req, res) => {
   try {

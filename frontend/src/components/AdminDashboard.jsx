@@ -26,7 +26,8 @@ import {
   Clock,
   ChevronRight,
   Eye,
-  ExternalLink
+  ExternalLink,
+  Trash2
 } from 'lucide-react'
 import logger from '../utils/logger'
 import { API_BASE_URL, getApiUrl } from '../config'
@@ -149,6 +150,8 @@ function AdminDashboard() {
   const [showSessions, setShowSessions] = useState(false)
   const [showPopular, setShowPopular] = useState(false)
   const [loadingContacts, setLoadingContacts] = useState(false)
+  const [selectedContacts, setSelectedContacts] = useState(new Set())
+  const [deletingContacts, setDeletingContacts] = useState(false)
   const [loadingSessions, setLoadingSessions] = useState(false)
   const [loadingSession, setLoadingSession] = useState(false)
 
@@ -398,6 +401,72 @@ function AdminDashboard() {
       logger.error('Error fetching contacts:', err)
     } finally {
       setLoadingContacts(false)
+    }
+  }
+
+  // Delete single contact
+  const deleteContact = async (id) => {
+    try {
+      const response = await fetch(getApiUrl(`/api/admin/contacts/${id}`), {
+        method: 'DELETE'
+      })
+      if (response.ok) {
+        setContacts(prev => prev.filter(c => c.id !== id))
+        setSelectedContacts(prev => {
+          const next = new Set(prev)
+          next.delete(id)
+          return next
+        })
+        showToast('Contact deleted', 'success')
+      }
+    } catch (err) {
+      logger.error('Error deleting contact:', err)
+      showToast('Failed to delete contact', 'error')
+    }
+  }
+
+  // Bulk delete contacts
+  const bulkDeleteContacts = async () => {
+    if (selectedContacts.size === 0) return
+    setDeletingContacts(true)
+    try {
+      const response = await fetch(getApiUrl('/api/admin/contacts'), {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: Array.from(selectedContacts) })
+      })
+      if (response.ok) {
+        setContacts(prev => prev.filter(c => !selectedContacts.has(c.id)))
+        setSelectedContacts(new Set())
+        showToast(`${selectedContacts.size} contacts deleted`, 'success')
+      }
+    } catch (err) {
+      logger.error('Error bulk deleting contacts:', err)
+      showToast('Failed to delete contacts', 'error')
+    } finally {
+      setDeletingContacts(false)
+    }
+  }
+
+  // Toggle contact selection
+  const toggleContactSelection = (id) => {
+    setSelectedContacts(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) {
+        next.delete(id)
+      } else {
+        next.add(id)
+      }
+      return next
+    })
+  }
+
+  // Select all contacts
+  const selectAllContacts = () => {
+    if (selectedContacts.size === contacts.length) {
+      setSelectedContacts(new Set())
+    } else {
+      setSelectedContacts(new Set(contacts.map(c => c.id)))
     }
   }
 
@@ -1104,6 +1173,20 @@ function AdminDashboard() {
                 <p className="text-xs md:text-sm text-gray-500 mt-0.5">Guest callback requests</p>
               </div>
               <div className="flex items-center gap-2">
+                {selectedContacts.size > 0 && (
+                  <button
+                    onClick={bulkDeleteContacts}
+                    disabled={deletingContacts}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-white bg-rose-500 hover:bg-rose-600 rounded-lg transition-colors disabled:opacity-50"
+                  >
+                    {deletingContacts ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Trash2 className="w-3.5 h-3.5" />
+                    )}
+                    <span className="hidden sm:inline">Delete ({selectedContacts.size})</span>
+                  </button>
+                )}
                 <button
                   onClick={() => exportData('contacts')}
                   className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-gray-500 hover:text-hotel-gold hover:bg-hotel-gold/5 rounded-lg transition-colors"
@@ -1125,37 +1208,66 @@ function AdminDashboard() {
                 <Loader2 className="w-6 h-6 text-hotel-gold animate-spin mx-auto" />
               </div>
             ) : contacts.length > 0 ? (
-              <div className="divide-y divide-gray-100 max-h-96 overflow-y-auto">
-                {contacts.map((contact) => (
-                  <div key={contact.id} className="px-4 md:px-6 py-3 md:py-4 hover:bg-gray-50">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm md:text-base font-medium text-hotel-charcoal">{contact.name}</p>
-                        <div className="flex flex-wrap items-center gap-3 mt-1 text-xs text-gray-500">
-                          <span className="flex items-center gap-1">
-                            <Mail className="w-3 h-3" />
-                            {contact.email}
-                          </span>
-                          {contact.phone && (
+              <>
+                {/* Select All Header */}
+                <div className="px-4 md:px-6 py-2 bg-gray-50 border-b border-gray-100 flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    checked={selectedContacts.size === contacts.length && contacts.length > 0}
+                    onChange={selectAllContacts}
+                    className="w-4 h-4 rounded border-gray-300 text-hotel-gold focus:ring-hotel-gold"
+                  />
+                  <span className="text-xs text-gray-500">
+                    {selectedContacts.size > 0 ? `${selectedContacts.size} selected` : 'Select all'}
+                  </span>
+                </div>
+                <div className="divide-y divide-gray-100 max-h-96 overflow-y-auto">
+                  {contacts.map((contact) => (
+                    <div key={contact.id} className="px-4 md:px-6 py-3 md:py-4 hover:bg-gray-50 group">
+                      <div className="flex items-start gap-3">
+                        <input
+                          type="checkbox"
+                          checked={selectedContacts.has(contact.id)}
+                          onChange={() => toggleContactSelection(contact.id)}
+                          className="w-4 h-4 mt-1 rounded border-gray-300 text-hotel-gold focus:ring-hotel-gold"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm md:text-base font-medium text-hotel-charcoal">{contact.name}</p>
+                          <div className="flex flex-wrap items-center gap-3 mt-1 text-xs text-gray-500">
                             <span className="flex items-center gap-1">
-                              <Phone className="w-3 h-3" />
-                              {contact.phone}
+                              <Mail className="w-3 h-3" />
+                              {contact.email}
                             </span>
+                            {contact.phone && (
+                              <span className="flex items-center gap-1">
+                                <Phone className="w-3 h-3" />
+                                {contact.phone}
+                              </span>
+                            )}
+                          </div>
+                          {contact.unanswered_question && (
+                            <p className="mt-2 text-xs text-gray-600 bg-gray-50 p-2 rounded-lg">
+                              "{contact.unanswered_question}"
+                            </p>
                           )}
                         </div>
-                        {contact.unanswered_question && (
-                          <p className="mt-2 text-xs text-gray-600 bg-gray-50 p-2 rounded-lg">
-                            "{contact.unanswered_question}"
-                          </p>
-                        )}
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] text-gray-400 flex-shrink-0">
+                            {new Date(contact.created_at).toLocaleDateString()}
+                          </span>
+                          <button
+                            onClick={() => deleteContact(contact.id)}
+                            className="p-1.5 text-gray-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                            aria-label={`Delete contact from ${contact.name}`}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
-                      <span className="text-[10px] text-gray-400 flex-shrink-0">
-                        {new Date(contact.created_at).toLocaleDateString()}
-                      </span>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              </>
             ) : (
               <div className="p-8 text-center">
                 <div className="p-3 bg-gray-50 rounded-full w-12 h-12 mx-auto mb-3 flex items-center justify-center">
