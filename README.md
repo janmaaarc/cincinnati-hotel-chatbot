@@ -18,26 +18,58 @@ This system allows hotel guests to chat with an AI assistant that answers questi
 - Dark luxury theme with gold accents
 - 5-star branding with custom hotel logo
 - Smooth page transitions
+- **Accessibility (WCAG 2.1 AA)**:
+  - Skip-to-content link for keyboard navigation
+  - Proper semantic structure (`<main>`, `<nav>`, `<footer>`)
+  - ARIA labels and roles for interactive elements
+  - Focus-visible indicators on all interactive elements
+  - Decorative elements hidden from screen readers
 
 ### AI Virtual Concierge
 - Answers guest questions using uploaded PDF knowledge base
-- Quick action buttons:
-  - What are your room rates?
-  - What time is check-in?
-  - Is WiFi free?
-  - Do you have parking?
-  - What restaurants are on-site?
-  - Do you have a spa?
-- Real-time typing indicators
+- Quick action buttons for common questions
+- Real-time typing indicators with screen reader announcements
 - Contact form capture when AI cannot answer
 - Chat persistence across sessions
+- **Accessibility**:
+  - Live region announces new messages to screen readers
+  - Dialog semantics for contact form modal
+  - Hidden heading for page context
+  - Loading state announcements
+- **UX Enhancements**:
+  - Toast notifications for user feedback
+  - Copy-to-clipboard button on assistant messages
+  - Hotel logo in header and message avatars
+- **Performance**:
+  - Debounced localStorage saves (reduces write frequency)
+  - Conditional scroll (only scrolls on new messages)
+  - AbortController for cleanup on component unmount
+  - Race condition prevention on message send
 
 ### Admin Dashboard
 - Real-time statistics via Socket.io
 - PDF knowledge base upload and management
 - Session and conversation tracking
-- Unanswered questions view
+- Unanswered questions view with dismiss (X) button
 - Date range filter (Today, 7 Days, 30 Days, All Time)
+- **Accessibility**:
+  - Skip-to-content link and hidden page heading
+  - Keyboard navigation for date dropdown (Arrow keys, Enter, Escape)
+  - ARIA attributes on all interactive elements
+  - Screen reader announcements for loading states
+  - Proper dialog semantics for confirmation modals
+- **UX Enhancements**:
+  - Toast notifications for all actions
+  - Search/filter for unanswered questions
+  - Export unanswered questions as CSV
+  - Confirmation dialog before replacing PDF
+  - Error banner with dismiss button
+  - Click outside to close dropdowns
+- **Performance**:
+  - Memoized stat cards and category bars
+  - Debounced refresh button (2s cooldown)
+  - Socket reconnection with exponential backoff
+  - Unique keys for all list items
 
 ## Tech Stack
 
