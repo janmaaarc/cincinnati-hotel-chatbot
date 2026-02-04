@@ -1,29 +1,22 @@
-import nodemailer from 'nodemailer'
+import sgMail from '@sendgrid/mail'
 
 export async function sendContactEmail({ name, phone, email, unansweredQuestion, conversationSummary }) {
-  const gmailUser = process.env.GMAIL_USER
-  const gmailAppPassword = process.env.GMAIL_APP_PASSWORD
+  const sendgridApiKey = process.env.SENDGRID_API_KEY
+  const fromEmail = process.env.SENDGRID_FROM_EMAIL
   const contactEmail = process.env.CONTACT_EMAIL || 'idan@tauga.ai'
 
   console.log('Email config check:', {
-    hasGmailUser: !!gmailUser,
-    hasGmailPassword: !!gmailAppPassword,
+    hasSendgridKey: !!sendgridApiKey,
+    hasFromEmail: !!fromEmail,
     contactEmail
   })
 
-  if (!gmailUser || !gmailAppPassword) {
-    console.warn('Gmail credentials not configured, skipping email')
-    console.warn('Available env vars:', Object.keys(process.env).filter(k => k.includes('GMAIL') || k.includes('MAIL')))
+  if (!sendgridApiKey || !fromEmail) {
+    console.warn('SendGrid credentials not configured, skipping email')
     return
   }
 
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: gmailUser,
-      pass: gmailAppPassword
-    }
-  })
+  sgMail.setApiKey(sendgridApiKey)
 
   const emailContent = `
 New Contact Request from Cincinnati Hotel Chatbot
@@ -44,26 +37,19 @@ This email was sent automatically from the Cincinnati Hotel Chatbot system.
 `
 
   try {
-    // Verify connection first
-    await transporter.verify()
-    console.log('SMTP connection verified')
-
-    const result = await transporter.sendMail({
-      from: `Cincinnati Hotel <${gmailUser}>`,
+    const result = await sgMail.send({
+      from: fromEmail,
       to: contactEmail,
       subject: `New Contact Request from ${name}`,
       text: emailContent
     })
 
-    console.log('Email sent - Response:', {
-      messageId: result.messageId,
-      accepted: result.accepted,
-      rejected: result.rejected,
-      response: result.response
-    })
+    console.log('Email sent - Status:', result[0].statusCode)
   } catch (error) {
     console.error('Error sending email:', error.message)
-    console.error('Error code:', error.code)
+    if (error.response) {
+      console.error('SendGrid error body:', error.response.body)
+    }
     throw error
   }
 }
