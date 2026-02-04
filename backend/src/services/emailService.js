@@ -1,15 +1,29 @@
-import { Resend } from 'resend'
+import nodemailer from 'nodemailer'
 
 export async function sendContactEmail({ name, phone, email, unansweredQuestion, conversationSummary }) {
-  const resendApiKey = process.env.RESEND_API_KEY
+  const gmailUser = process.env.GMAIL_USER
+  const gmailAppPassword = process.env.GMAIL_APP_PASSWORD
   const contactEmail = process.env.CONTACT_EMAIL || 'idan@tauga.ai'
 
-  if (!resendApiKey) {
-    console.warn('RESEND_API_KEY not configured, skipping email')
+  console.log('Email config check:', {
+    hasGmailUser: !!gmailUser,
+    hasGmailPassword: !!gmailAppPassword,
+    contactEmail
+  })
+
+  if (!gmailUser || !gmailAppPassword) {
+    console.warn('Gmail credentials not configured, skipping email')
+    console.warn('Available env vars:', Object.keys(process.env).filter(k => k.includes('GMAIL') || k.includes('MAIL')))
     return
   }
 
-  const resend = new Resend(resendApiKey)
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: gmailUser,
+      pass: gmailAppPassword
+    }
+  })
 
   const emailContent = `
 New Contact Request from Cincinnati Hotel Chatbot
@@ -30,8 +44,8 @@ This email was sent automatically from the Cincinnati Hotel Chatbot system.
 `
 
   try {
-    await resend.emails.send({
-      from: 'Cincinnati Hotel <onboarding@resend.dev>',
+    await transporter.sendMail({
+      from: `Cincinnati Hotel <${gmailUser}>`,
       to: contactEmail,
       subject: `New Contact Request from ${name}`,
       text: emailContent
