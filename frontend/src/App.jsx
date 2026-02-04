@@ -1,5 +1,4 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import HomePage from './components/HomePage'
 import SimpleLandingPage from './components/SimpleLandingPage'
 import LandingPage from './components/LandingPage'
 import ChatInterface from './components/ChatInterface'
@@ -13,8 +12,7 @@ function App() {
     <ErrorBoundary>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/simple" element={<SimpleLandingPage />} />
+          <Route path="/" element={<SimpleLandingPage />} />
           <Route path="/landing" element={<LandingPage />} />
           <Route path="/chat" element={<ChatInterface />} />
           <Route path="/admin" element={<AdminDashboard />} />
