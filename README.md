@@ -46,7 +46,7 @@ This system allows hotel guests to chat with an AI assistant that answers questi
 | **Frontend** | React 18, Vite, Tailwind CSS v4, React Router v7 |
 | **Backend** | Node.js, Express, Socket.io |
 | **Database** | Turso (LibSQL) - Edge SQLite |
-| **AI** | n8n workflow + OpenAI GPT-4o-mini |
+| **AI** | n8n workflow + Google Gemini |
 | **Hosting** | Vercel (frontend) + Render (backend) |
 
 ## Quick Start
@@ -55,7 +55,7 @@ This system allows hotel guests to chat with an AI assistant that answers questi
 - Node.js 18+
 - Turso account (free tier)
 - n8n instance (cloud or self-hosted)
-- OpenAI API key
+- Google Gemini API key
 
 ### Local Development
 
@@ -122,7 +122,7 @@ VITE_API_URL=http://localhost:3001
 ### Step 3: Configure n8n
 
 1. Import `n8n/hotel-chatbot-workflow.json` into n8n
-2. Add OpenAI API credentials
+2. Add Google Gemini API credentials
 3. Activate the workflow
 4. Copy webhook URL to backend's `N8N_WEBHOOK_URL`
 
