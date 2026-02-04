@@ -7,36 +7,36 @@
         "responseMode": "responseNode",
         "options": {}
       },
-      "id": "e9bbb0c2-bb66-4ff6-9d6b-3c94df639705",
+      "id": "webhook-node",
       "name": "Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [-608, -112],
+      "position": [-600, 0],
       "webhookId": "hotel-chat-webhook"
     },
     {
       "parameters": {
-        "promptType": "define",
-        "text": "={{ $json.body.message }}",
-        "options": {
-          "systemMessage": "You are the Cincinnati Hotel's friendly virtual assistant. Your role is to help guests with questions about our hotel.\n\nIMPORTANT RULES:\n1. ONLY answer questions using the hotel information provided below. Do not make up or assume any information.\n2. If the answer is NOT clearly stated in the provided hotel information, you MUST set answerFound to false and respond with: \"I'm sorry, I don't have that information right now. Would you like to leave your contact details so our team can get back to you?\"\n3. Be warm, professional, and helpful - you represent a luxury hotel.\n4. Keep responses concise but informative.\n5. Always respond in JSON format with these exact fields:\n   - answer: Your response to the guest\n   - category: The topic category (must be one of: Rooms, Restaurant, Amenities, Location, Pricing, Policies, Services, Other)\n   - answerFound: true if you found the answer in the hotel information, false if you could not answer\n\nCOMMON QUICK QUESTIONS (be prepared to answer these well):\n- What are your room rates?\n- What time is check-in?\n- Is WiFi free?\n- Do you have parking?\n- What restaurants are on-site?\n- Do you have a spa?\n\nHOTEL INFORMATION:\n{{ $json.body.pdfContent }}\n\nRemember: If the hotel information above is empty or doesn't contain the answer, set answerFound to false."
+        "prompt": {
+          "values": {
+            "text": "=You are Cincinnati Hotel's friendly virtual concierge.\n\n---\nHOTEL KNOWLEDGE BASE:\n{{ $json.body?.pdfContent || $json.pdfContent || 'No hotel information available.' }}\n---\n\nGUEST QUESTION: {{ $json.body?.message || $json.message }}\n\nINSTRUCTIONS:\n1. Search the HOTEL KNOWLEDGE BASE above carefully for the answer\n2. If you find the answer in the knowledge base, respond helpfully and set answerFound to true\n3. If you cannot find the answer, set answerFound to false and say you don't have that information\n4. Be warm, professional, and concise\n\nYou MUST respond with ONLY valid JSON in this exact format (no other text):\n{\"answer\": \"your helpful response here\", \"category\": \"CategoryName\", \"answerFound\": true}\n\nValid categories: Rooms, Restaurant, Amenities, Location, Pricing, Policies, Services, Other"
+          }
         }
       },
-      "id": "951fafd9-81cf-47d0-b8d4-379e585052ec",
-      "name": "AI Agent",
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 1.7,
-      "position": [-384, -112]
+      "id": "llm-chain-node",
+      "name": "Basic LLM Chain",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [-350, 0]
     },
     {
       "parameters": {
-        "jsCode": "const response = $input.first().json;\n\n// Try to parse the AI response as JSON\nlet parsedResponse;\ntry {\n  // The AI response might be in the output field or directly in the response\n  const aiOutput = response.output || response.text || response;\n  \n  // If it's a string, try to extract JSON from it\n  if (typeof aiOutput === 'string') {\n    // Try to find JSON in the response\n    const jsonMatch = aiOutput.match(/\\{[\\s\\S]*\\}/);\n    if (jsonMatch) {\n      parsedResponse = JSON.parse(jsonMatch[0]);\n    } else {\n      // If no JSON found, create a default response\n      parsedResponse = {\n        answer: aiOutput,\n        category: 'Other',\n        answerFound: true\n      };\n    }\n  } else {\n    parsedResponse = aiOutput;\n  }\n} catch (error) {\n  // If parsing fails, return the raw output\n  parsedResponse = {\n    answer: response.output || response.text || \"I'm sorry, I couldn't process your request.\",\n    category: 'Other',\n    answerFound: false\n  };\n}\n\n// Ensure all required fields exist\nreturn {\n  answer: parsedResponse.answer || \"I'm sorry, I couldn't process your request.\",\n  category: parsedResponse.category || 'Other',\n  answerFound: parsedResponse.answerFound !== false\n};"
+        "jsCode": "const response = $input.first().json;\n\nlet parsedResponse;\ntry {\n  const aiOutput = response.text || response.output || response.response || JSON.stringify(response);\n  \n  // Try to extract JSON from the response\n  const jsonMatch = aiOutput.match(/\\{[\\s\\S]*?\\}/);\n  if (jsonMatch) {\n    parsedResponse = JSON.parse(jsonMatch[0]);\n  } else {\n    parsedResponse = {\n      answer: String(aiOutput).substring(0, 500) || \"I apologize, I couldn't process your request.\",\n      category: 'Other',\n      answerFound: false\n    };\n  }\n} catch (error) {\n  parsedResponse = {\n    answer: \"I apologize, I'm having trouble processing your request right now.\",\n    category: 'Other',\n    answerFound: false\n  };\n}\n\nreturn {\n  answer: parsedResponse.answer || \"I couldn't find an answer.\",\n  category: parsedResponse.category || 'Other',\n  answerFound: parsedResponse.answerFound === true\n};"
       },
-      "id": "9df4fb72-215a-48e5-85d9-82ba4245c341",
+      "id": "parse-response-node",
       "name": "Parse Response",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-112, -112]
+      "position": [-100, 0]
     },
     {
       "parameters": {
@@ -44,21 +44,24 @@
         "responseBody": "={{ $json }}",
         "options": {}
       },
-      "id": "3c113bdd-4edd-4a7c-9ed0-9fe5bd8c2ca7",
+      "id": "respond-node",
       "name": "Respond to Webhook",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [144, -112]
+      "position": [150, 0]
     },
     {
       "parameters": {
-        "options": {}
+        "modelName": "models/gemini-1.5-flash",
+        "options": {
+          "temperature": 0.2
+        }
       },
+      "id": "gemini-model-node",
+      "name": "Google Gemini Chat Model",
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1,
-      "position": [-528, 96],
-      "id": "6ff634de-3908-4be4-b242-5499f72caae4",
-      "name": "Google Gemini Chat Model",
+      "position": [-350, 200],
       "credentials": {
         "googlePalmApi": {
           "id": "YOUR_CREDENTIAL_ID",
@@ -72,14 +75,14 @@
       "main": [
         [
           {
-            "node": "AI Agent",
+            "node": "Basic LLM Chain",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "AI Agent": {
+    "Basic LLM Chain": {
       "main": [
         [
           {
@@ -105,7 +108,7 @@
       "ai_languageModel": [
         [
           {
-            "node": "AI Agent",
+            "node": "Basic LLM Chain",
             "type": "ai_languageModel",
             "index": 0
           }
