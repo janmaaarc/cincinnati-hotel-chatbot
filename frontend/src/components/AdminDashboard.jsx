@@ -154,6 +154,8 @@ function AdminDashboard() {
   const [deletingContacts, setDeletingContacts] = useState(false)
   const [loadingSessions, setLoadingSessions] = useState(false)
   const [loadingSession, setLoadingSession] = useState(false)
+  const [selectedSessions, setSelectedSessions] = useState(new Set())
+  const [deletingSessions, setDeletingSessions] = useState(false)
 
   const dropdownRef = useRef(null)
   const dropdownButtonRef = useRef(null)
@@ -163,7 +165,10 @@ function AdminDashboard() {
 
   // Toast notification helper
   const showToast = useCallback((message, type = 'success') => {
-    setToast({ message, type })
+    setToast(prev => {
+      if (prev?.message === message) return prev
+      return { message, type }
+    })
     setTimeout(() => setToast(null), 3000)
   }, [])
 
@@ -467,6 +472,74 @@ function AdminDashboard() {
       setSelectedContacts(new Set())
     } else {
       setSelectedContacts(new Set(contacts.map(c => c.id)))
+    }
+  }
+
+  // Delete single session
+  const deleteSession = async (id, e) => {
+    e.stopPropagation()
+    try {
+      const response = await fetch(getApiUrl(`/api/admin/sessions/${id}`), {
+        method: 'DELETE'
+      })
+      if (response.ok) {
+        setSessions(prev => prev.filter(s => s.id !== id))
+        setSelectedSessions(prev => {
+          const next = new Set(prev)
+          next.delete(id)
+          return next
+        })
+        showToast('Session deleted', 'success')
+      }
+    } catch (err) {
+      logger.error('Error deleting session:', err)
+      showToast('Failed to delete session', 'error')
+    }
+  }
+
+  // Bulk delete sessions
+  const bulkDeleteSessions = async () => {
+    if (selectedSessions.size === 0) return
+    setDeletingSessions(true)
+    try {
+      const response = await fetch(getApiUrl('/api/admin/sessions'), {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: Array.from(selectedSessions) })
+      })
+      if (response.ok) {
+        setSessions(prev => prev.filter(s => !selectedSessions.has(s.id)))
+        setSelectedSessions(new Set())
+        showToast(`${selectedSessions.size} sessions deleted`, 'success')
+      }
+    } catch (err) {
+      logger.error('Error bulk deleting sessions:', err)
+      showToast('Failed to delete sessions', 'error')
+    } finally {
+      setDeletingSessions(false)
+    }
+  }
+
+  // Toggle session selection
+  const toggleSessionSelection = (id, e) => {
+    e.stopPropagation()
+    setSelectedSessions(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) {
+        next.delete(id)
+      } else {
+        next.add(id)
+      }
+      return next
+    })
+  }
+
+  // Select all sessions
+  const selectAllSessions = () => {
+    if (selectedSessions.size === sessions.length) {
+      setSelectedSessions(new Set())
+    } else {
+      setSelectedSessions(new Set(sessions.map(s => s.id)))
     }
   }
 
@@ -1302,6 +1375,20 @@ function AdminDashboard() {
                     Back to list
                   </button>
                 )}
+                {!selectedSession && selectedSessions.size > 0 && (
+                  <button
+                    onClick={bulkDeleteSessions}
+                    disabled={deletingSessions}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-white bg-rose-500 hover:bg-rose-600 rounded-lg transition-colors disabled:opacity-50"
+                  >
+                    {deletingSessions ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Trash2 className="w-3.5 h-3.5" />
+                    )}
+                    <span className="hidden sm:inline">Delete ({selectedSessions.size})</span>
+                  </button>
+                )}
                 {!selectedSession && (
                   <button
                     onClick={() => exportData('sessions')}
@@ -1352,29 +1439,60 @@ function AdminDashboard() {
               </div>
             ) : sessions.length > 0 ? (
               // Sessions list
-              <div className="divide-y divide-gray-100 max-h-96 overflow-y-auto">
-                {sessions.map((session) => (
-                  <button
-                    key={session.id}
-                    onClick={() => fetchSessionDetail(session.id)}
-                    className="w-full px-4 md:px-6 py-3 md:py-4 hover:bg-gray-50 text-left flex items-center gap-3 group"
-                  >
-                    <div className="p-2 bg-cyan-50 rounded-lg flex-shrink-0">
-                      <MessageSquare className="w-4 h-4 text-cyan-500" />
+              <>
+                {/* Select All Header */}
+                <div className="px-4 md:px-6 py-2 bg-gray-50 border-b border-gray-100 flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    checked={selectedSessions.size === sessions.length && sessions.length > 0}
+                    onChange={selectAllSessions}
+                    className="w-4 h-4 rounded border-gray-300 text-hotel-gold focus:ring-hotel-gold"
+                  />
+                  <span className="text-xs text-gray-500">
+                    {selectedSessions.size > 0 ? `${selectedSessions.size} selected` : 'Select all'}
+                  </span>
+                </div>
+                <div className="divide-y divide-gray-100 max-h-96 overflow-y-auto">
+                  {sessions.map((session) => (
+                    <div
+                      key={session.id}
+                      className="px-4 md:px-6 py-3 md:py-4 hover:bg-gray-50 flex items-center gap-3 group"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedSessions.has(session.id)}
+                        onChange={(e) => toggleSessionSelection(session.id, e)}
+                        className="w-4 h-4 rounded border-gray-300 text-hotel-gold focus:ring-hotel-gold flex-shrink-0"
+                      />
+                      <button
+                        onClick={() => fetchSessionDetail(session.id)}
+                        className="flex-1 text-left flex items-center gap-3"
+                      >
+                        <div className="p-2 bg-cyan-50 rounded-lg flex-shrink-0">
+                          <MessageSquare className="w-4 h-4 text-cyan-500" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-hotel-charcoal truncate">
+                            {session.first_message || 'No messages'}
+                          </p>
+                          <div className="flex items-center gap-3 mt-0.5 text-xs text-gray-400">
+                            <span>{session.message_count || 0} messages</span>
+                            <span>{new Date(session.created_at).toLocaleDateString()}</span>
+                          </div>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-hotel-gold transition-colors" />
+                      </button>
+                      <button
+                        onClick={(e) => deleteSession(session.id, e)}
+                        className="p-1.5 text-gray-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 flex-shrink-0"
+                        aria-label={`Delete session`}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-hotel-charcoal truncate">
-                        {session.first_message || 'No messages'}
-                      </p>
-                      <div className="flex items-center gap-3 mt-0.5 text-xs text-gray-400">
-                        <span>{session.message_count || 0} messages</span>
-                        <span>{new Date(session.created_at).toLocaleDateString()}</span>
-                      </div>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-hotel-gold transition-colors" />
-                  </button>
-                ))}
-              </div>
+                  ))}
+                </div>
+              </>
             ) : (
               <div className="p-8 text-center">
                 <div className="p-3 bg-gray-50 rounded-full w-12 h-12 mx-auto mb-3 flex items-center justify-center">

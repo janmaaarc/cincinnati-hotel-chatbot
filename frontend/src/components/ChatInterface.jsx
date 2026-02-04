@@ -146,7 +146,10 @@ function ChatInterface() {
 
   // Show toast notification
   const showToast = useCallback((message, type = 'success') => {
-    setToast({ message, type })
+    setToast(prev => {
+      if (prev?.message === message) return prev
+      return { message, type }
+    })
     setTimeout(() => setToast(null), 3000)
   }, [])
 
@@ -409,37 +412,20 @@ function ChatInterface() {
       })
       const data = await response.json()
       setSessionId(data.sessionId)
-
-      const welcomeMessage = {
-        id: generateMessageId(),
-        role: 'assistant',
-        content: "Good day! Welcome to Cincinnati Hotel. I'm your personal concierge assistant. How may I assist you today?",
-        timestamp: new Date()
-      }
-      setMessages([welcomeMessage])
-      prevMessagesLengthRef.current = 1
     } catch (error) {
       if (error.name === 'AbortError') return
       logger.error('Error creating session:', error)
-      const fallbackMessage = {
-        id: generateMessageId(),
-        role: 'assistant',
-        content: "Welcome to Cincinnati Hotel! I'm here to help. What would you like to know?",
-        timestamp: new Date()
-      }
-      setMessages([fallbackMessage])
-      prevMessagesLengthRef.current = 1
     }
   }
 
-  const sendMessageWithRetry = useCallback(async (text, retryCount = 0) => {
+  const sendMessageWithRetry = useCallback(async (text, sid, retryCount = 0) => {
     try {
       abortControllerRef.current = new AbortController()
       const response = await fetch(getApiUrl('/api/chat/message'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          sessionId,
+          sessionId: sid,
           message: text
         }),
         signal: abortControllerRef.current.signal
@@ -471,7 +457,7 @@ function ChatInterface() {
 
       if (retryCount < MAX_RETRIES - 1) {
         await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * (retryCount + 1)))
-        return sendMessageWithRetry(text, retryCount + 1)
+        return sendMessageWithRetry(text, sid, retryCount + 1)
       }
 
       setRetryMessage(text)
@@ -484,13 +470,29 @@ function ChatInterface() {
       }])
       return false
     }
-  }, [sessionId])
+  }, [])
 
   const sendMessage = async (messageText) => {
     const text = messageText || inputValue.trim()
 
     // Check isLoading first to prevent race condition
-    if (isLoading || !text || !sessionId) return
+    if (isLoading || !text) return
+
+    // Create session on-demand if not exists
+    let currentSessionId = sessionId
+    if (!currentSessionId) {
+      try {
+        const response = await fetch(getApiUrl('/api/chat/session'), {
+          method: 'POST'
+        })
+        const data = await response.json()
+        currentSessionId = data.sessionId
+        setSessionId(currentSessionId)
+      } catch (error) {
+        logger.error('Error creating session:', error)
+        return
+      }
+    }
 
     const now = Date.now()
     if (now - lastMessageTimeRef.current < MESSAGE_COOLDOWN_MS) {
@@ -513,16 +515,16 @@ function ChatInterface() {
     }
     setMessages(prev => [...prev, userMessage])
 
-    await sendMessageWithRetry(text)
+    await sendMessageWithRetry(text, currentSessionId)
     setIsLoading(false)
   }
 
   const handleRetry = () => {
-    if (retryMessage) {
+    if (retryMessage && sessionId) {
       setMessages(prev => prev.filter(m => !m.isError))
       setIsLoading(true)
       setRetryMessage(null)
-      sendMessageWithRetry(retryMessage).finally(() => setIsLoading(false))
+      sendMessageWithRetry(retryMessage, sessionId).finally(() => setIsLoading(false))
     }
   }
 

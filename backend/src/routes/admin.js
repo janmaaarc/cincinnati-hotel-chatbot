@@ -245,6 +245,54 @@ router.get('/sessions/:sessionId', async (req, res) => {
   }
 })
 
+// Delete single session
+router.delete('/sessions/:sessionId', async (req, res) => {
+  try {
+    const { sessionId } = req.params
+    // Delete messages first (foreign key constraint)
+    await req.db.execute({
+      sql: 'DELETE FROM messages WHERE session_id = ?',
+      args: [sessionId]
+    })
+    // Delete the session
+    await req.db.execute({
+      sql: 'DELETE FROM chat_sessions WHERE id = ?',
+      args: [sessionId]
+    })
+    res.json({ success: true, message: 'Session deleted' })
+  } catch (error) {
+    console.error('Error deleting session:', error)
+    res.status(500).json({ error: 'Failed to delete session' })
+  }
+})
+
+// Bulk delete sessions
+router.delete('/sessions', async (req, res) => {
+  try {
+    const { ids } = req.body
+    if (!ids || !Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ error: 'No IDs provided' })
+    }
+
+    const placeholders = ids.map(() => '?').join(',')
+    // Delete messages first
+    await req.db.execute({
+      sql: `DELETE FROM messages WHERE session_id IN (${placeholders})`,
+      args: ids
+    })
+    // Delete sessions
+    await req.db.execute({
+      sql: `DELETE FROM chat_sessions WHERE id IN (${placeholders})`,
+      args: ids
+    })
+
+    res.json({ success: true, message: `${ids.length} sessions deleted` })
+  } catch (error) {
+    console.error('Error bulk deleting sessions:', error)
+    res.status(500).json({ error: 'Failed to delete sessions' })
+  }
+})
+
 // Get popular questions (most frequently asked)
 router.get('/popular-questions', async (req, res) => {
   try {
