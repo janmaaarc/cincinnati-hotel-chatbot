@@ -710,21 +710,37 @@ function LandingPage() {
           </div>
         </div>
 
-        {/* Main Footer Content - Compact */}
-        <div className="pt-10 md:pt-20 pb-6 md:pb-8 px-4 md:px-6">
+        {/* Main Footer Content */}
+        <div className="py-8 md:pt-20 md:pb-8 px-4 md:px-6">
           <div className="max-w-6xl mx-auto">
-            {/* Brand Section - Full width on mobile */}
-            <div className="text-center md:text-left mb-8 md:mb-0 md:hidden">
-              <div className="flex items-center justify-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-hotel-gold to-hotel-gold-dark flex items-center justify-center shadow-lg shadow-hotel-gold/20">
-                  <span className="text-white font-display text-xl font-bold">C</span>
+            {/* Mobile Footer - Simple & Clean */}
+            <div className="md:hidden text-center">
+              {/* Logo */}
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-hotel-gold to-hotel-gold-dark flex items-center justify-center">
+                  <span className="text-white font-display text-lg font-bold">C</span>
                 </div>
-                <div>
-                  <h3 className="text-white font-display text-lg tracking-wider">CINCINNATI</h3>
-                  <p className="text-hotel-gold text-[10px] tracking-[0.2em] uppercase">Hotel & Suites</p>
+                <div className="text-left">
+                  <h3 className="text-white font-display text-base tracking-wider leading-tight">CINCINNATI</h3>
+                  <p className="text-hotel-gold text-[9px] tracking-[0.15em] uppercase">Hotel & Suites</p>
                 </div>
               </div>
-              <div className="flex items-center justify-center gap-3 mb-6">
+
+              {/* Contact Row */}
+              <div className="flex items-center justify-center gap-4 mb-4 text-sm">
+                <a href="tel:+15135550123" className="text-white/70 hover:text-hotel-gold flex items-center gap-1.5">
+                  <Phone className="w-3.5 h-3.5" />
+                  <span>Call</span>
+                </a>
+                <span className="text-white/20">|</span>
+                <a href="mailto:info@cincinnatihotel.com" className="text-white/70 hover:text-hotel-gold flex items-center gap-1.5">
+                  <Mail className="w-3.5 h-3.5" />
+                  <span>Email</span>
+                </a>
+              </div>
+
+              {/* Social Links */}
+              <div className="flex items-center justify-center gap-3 mb-4">
                 {[
                   { Icon: Facebook, label: 'Facebook' },
                   { Icon: Instagram, label: 'Instagram' },
@@ -733,119 +749,123 @@ function LandingPage() {
                   <a
                     key={index}
                     href="#"
-                    className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white/70 hover:bg-hotel-gold hover:border-hotel-gold hover:text-white transition-all"
+                    className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center text-white/60 hover:bg-hotel-gold hover:text-white transition-all"
                     aria-label={`Follow us on ${label}`}
                   >
                     <Icon className="w-4 h-4" aria-hidden="true" />
                   </a>
                 ))}
               </div>
+
+              {/* Copyright */}
+              <p className="text-white/40 text-xs">
+                © {new Date().getFullYear()} Cincinnati Hotel & Suites
+              </p>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-12 gap-6 md:gap-8 mb-8 md:mb-14">
-              {/* Brand Column - Desktop only */}
-              <div className="hidden md:block md:col-span-4 lg:col-span-5">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-hotel-gold to-hotel-gold-dark flex items-center justify-center shadow-lg shadow-hotel-gold/20">
-                    <span className="text-white font-display text-2xl font-bold">C</span>
+            {/* Desktop Footer - Full Layout */}
+            <div className="hidden md:block">
+              <div className="grid md:grid-cols-12 gap-8 mb-14">
+                {/* Brand Column */}
+                <div className="md:col-span-4 lg:col-span-5">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-hotel-gold to-hotel-gold-dark flex items-center justify-center shadow-lg shadow-hotel-gold/20">
+                      <span className="text-white font-display text-2xl font-bold">C</span>
+                    </div>
+                    <div>
+                      <h3 className="text-white font-display text-xl tracking-wider">CINCINNATI</h3>
+                      <p className="text-hotel-gold text-xs tracking-[0.2em] uppercase">Hotel & Suites</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-white font-display text-xl tracking-wider">CINCINNATI</h3>
-                    <p className="text-hotel-gold text-xs tracking-[0.2em] uppercase">Hotel & Suites</p>
+                  <p className="text-white/70 text-base leading-relaxed mb-6 max-w-sm">
+                    Experience timeless elegance and exceptional hospitality in the heart of downtown Cincinnati since 1998.
+                  </p>
+                  <div className="flex items-center gap-3">
+                    {[
+                      { Icon: Facebook, label: 'Facebook' },
+                      { Icon: Instagram, label: 'Instagram' },
+                      { Icon: Twitter, label: 'Twitter' }
+                    ].map(({ Icon, label }, index) => (
+                      <a
+                        key={index}
+                        href="#"
+                        className="group w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/70 hover:bg-hotel-gold hover:border-hotel-gold hover:text-white transition-all duration-300 hover:scale-110"
+                        aria-label={`Follow us on ${label}`}
+                      >
+                        <Icon className="w-5 h-5 group-hover:scale-110 transition-transform" aria-hidden="true" />
+                      </a>
+                    ))}
                   </div>
                 </div>
-                <p className="text-white/70 text-base leading-relaxed mb-6 max-w-sm">
-                  Experience timeless elegance and exceptional hospitality in the heart of downtown Cincinnati since 1998.
-                </p>
-                <div className="flex items-center gap-3">
-                  {[
-                    { Icon: Facebook, label: 'Facebook' },
-                    { Icon: Instagram, label: 'Instagram' },
-                    { Icon: Twitter, label: 'Twitter' }
-                  ].map(({ Icon, label }, index) => (
-                    <a
-                      key={index}
-                      href="#"
-                      className="group w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/70 hover:bg-hotel-gold hover:border-hotel-gold hover:text-white transition-all duration-300 hover:scale-110"
-                      aria-label={`Follow us on ${label}`}
-                    >
-                      <Icon className="w-5 h-5 group-hover:scale-110 transition-transform" aria-hidden="true" />
-                    </a>
-                  ))}
+
+                {/* Quick Links */}
+                <div className="md:col-span-2">
+                  <h4 className="text-white font-semibold text-base mb-5">Explore</h4>
+                  <ul className="space-y-3">
+                    {['About', 'Amenities', 'Rooms', 'FAQ', 'Contact'].map((item) => (
+                      <li key={item}>
+                        <button
+                          onClick={() => scrollToSection(item.toLowerCase())}
+                          className="text-white/60 hover:text-hotel-gold text-sm transition-colors"
+                        >
+                          {item}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Contact Info */}
+                <div className="md:col-span-3">
+                  <h4 className="text-white font-semibold text-base mb-5">Contact</h4>
+                  <ul className="space-y-3 text-sm">
+                    <li>
+                      <a href="tel:+15135550123" className="text-white/60 hover:text-hotel-gold transition-colors flex items-center gap-2">
+                        <Phone className="w-4 h-4 text-hotel-gold" />
+                        +1 (513) 555-0123
+                      </a>
+                    </li>
+                    <li>
+                      <a href="mailto:info@cincinnatihotel.com" className="text-white/60 hover:text-hotel-gold transition-colors flex items-center gap-2">
+                        <Mail className="w-4 h-4 text-hotel-gold" />
+                        info@cincinnatihotel.com
+                      </a>
+                    </li>
+                    <li className="flex items-start gap-2 text-white/60">
+                      <MapPin className="w-4 h-4 text-hotel-gold flex-shrink-0 mt-0.5" />
+                      123 Main Street, Cincinnati, OH 45202
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Hours */}
+                <div className="md:col-span-3 lg:col-span-2">
+                  <h4 className="text-white font-semibold text-base mb-5">Hours</h4>
+                  <div className="space-y-2 text-sm">
+                    <p className="text-white/60">Check-in: <span className="text-white">3:00 PM</span></p>
+                    <p className="text-white/60">Check-out: <span className="text-white">11:00 AM</span></p>
+                    <p className="text-white/60">Front Desk: <span className="text-hotel-gold font-semibold">24/7</span></p>
+                  </div>
                 </div>
               </div>
 
-              {/* Quick Links - col 1 on mobile */}
-              <div className="md:col-span-2">
-                <h4 className="text-white font-semibold text-sm md:text-base mb-3 md:mb-5">Explore</h4>
-                <ul className="space-y-2 md:space-y-3">
-                  {['About', 'Amenities', 'Rooms', 'FAQ'].map((item) => (
-                    <li key={item}>
-                      <button
-                        onClick={() => scrollToSection(item.toLowerCase())}
-                        className="text-white/60 hover:text-hotel-gold text-sm transition-colors"
+              {/* Bottom Bar */}
+              <div className="border-t border-white/10 pt-8">
+                <div className="flex items-center justify-between">
+                  <p className="text-white/60 text-sm">
+                    © {new Date().getFullYear()} Cincinnati Hotel & Suites. All rights reserved.
+                  </p>
+                  <div className="flex items-center gap-1">
+                    {['Privacy Policy', 'Terms of Service', 'Accessibility'].map((item) => (
+                      <a
+                        key={item}
+                        href="#"
+                        className="text-white/60 hover:text-hotel-gold text-sm transition-colors px-3 py-1 rounded-lg hover:bg-white/5"
                       >
                         {item}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Contact Info - col 2 on mobile */}
-              <div className="md:col-span-3">
-                <h4 className="text-white font-semibold text-sm md:text-base mb-3 md:mb-5">Contact</h4>
-                <ul className="space-y-2 md:space-y-3 text-sm">
-                  <li>
-                    <a href="tel:+15135550123" className="text-white/60 hover:text-hotel-gold transition-colors flex items-center gap-2">
-                      <Phone className="w-3.5 h-3.5 text-hotel-gold" aria-hidden="true" />
-                      <span className="text-xs md:text-sm">+1 (513) 555-0123</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="mailto:info@cincinnatihotel.com" className="text-white/60 hover:text-hotel-gold transition-colors flex items-center gap-2">
-                      <Mail className="w-3.5 h-3.5 text-hotel-gold" aria-hidden="true" />
-                      <span className="text-xs md:text-sm break-all">info@cincinnatihotel.com</span>
-                    </a>
-                  </li>
-                  <li className="flex items-start gap-2 text-white/60">
-                    <MapPin className="w-3.5 h-3.5 text-hotel-gold flex-shrink-0 mt-0.5" aria-hidden="true" />
-                    <span className="text-xs md:text-sm">123 Main St, Cincinnati, OH</span>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Hours - full width on mobile, hidden on small screens */}
-              <div className="col-span-2 md:col-span-3 lg:col-span-2">
-                <h4 className="text-white font-semibold text-sm md:text-base mb-3 md:mb-5">Hours</h4>
-                <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm md:block md:space-y-2">
-                  <p className="text-white/60">Check-in: <span className="text-white">3:00 PM</span></p>
-                  <p className="text-white/60">Check-out: <span className="text-white">11:00 AM</span></p>
-                  <p className="text-white/60">Front Desk: <span className="text-hotel-gold font-semibold">24/7</span></p>
-                </div>
-              </div>
-            </div>
-
-            {/* Bottom Bar - Enhanced */}
-            <div className="border-t border-white/10 pt-8">
-              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
-                  <p className="text-white/60 text-sm">
-                    &copy; {new Date().getFullYear()} Cincinnati Hotel & Suites
-                  </p>
-                  <div className="hidden sm:block w-1 h-1 bg-white/20 rounded-full"></div>
-                  <p className="text-white/60 text-sm">All rights reserved</p>
-                </div>
-                <div className="flex flex-wrap items-center justify-center gap-1">
-                  {['Privacy Policy', 'Terms of Service', 'Accessibility'].map((item) => (
-                    <a
-                      key={item}
-                      href="#"
-                      className="text-white/60 hover:text-hotel-gold text-xs sm:text-sm transition-colors px-2 sm:px-3 py-1 rounded-lg hover:bg-white/5"
-                    >
-                      {item}
-                    </a>
-                  ))}
+                      </a>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -853,11 +873,11 @@ function LandingPage() {
         </div>
       </footer>
 
-      {/* Back to Top Button */}
+      {/* Back to Top Button - positioned above chat button on mobile */}
       {showBackToTop && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-6 right-6 z-40 w-12 h-12 bg-hotel-gold hover:bg-hotel-gold-dark text-white rounded-full shadow-lg shadow-hotel-gold/30 flex items-center justify-center transition-all duration-300 hover:scale-110 animate-fadeIn"
+          className="fixed bottom-20 right-4 md:bottom-6 md:right-6 z-40 w-10 h-10 md:w-12 md:h-12 bg-hotel-charcoal/80 hover:bg-hotel-charcoal text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110 animate-fadeIn"
           aria-label="Back to top"
         >
           <ChevronUp className="w-6 h-6" />
