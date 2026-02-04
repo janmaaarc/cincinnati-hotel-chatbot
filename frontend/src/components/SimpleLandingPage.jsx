@@ -29,7 +29,7 @@ function SimpleLandingPage() {
       </div>
 
       {/* Content */}
-      <main id="main-content" className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-12 md:py-16">
+      <main id="main-content" className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-12 md:py-16 safe-area-inset">
         <div className="w-full max-w-xl">
           {/* Header */}
           <div className="text-center mb-12 md:mb-16">
@@ -70,17 +70,17 @@ function SimpleLandingPage() {
             <Link
               to="/chat"
               aria-label="Start a chat with our AI concierge for guest services"
-              className="group block bg-gradient-to-r from-hotel-gold to-hotel-gold-dark p-[1px] rounded-2xl transition-all duration-300 hover:shadow-xl hover:shadow-hotel-gold/30 hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-hotel-gold focus-visible:ring-offset-2 focus-visible:ring-offset-hotel-dark"
+              className="group block bg-gradient-to-r from-hotel-gold to-hotel-gold-dark p-[1px] rounded-2xl transition-all duration-300 hover:shadow-xl hover:shadow-hotel-gold/30 hover:-translate-y-0.5 active:scale-[0.98] active:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-hotel-gold focus-visible:ring-offset-2 focus-visible:ring-offset-hotel-dark"
             >
               <div className="bg-hotel-dark/90 backdrop-blur-sm rounded-2xl p-5 md:p-6 flex items-center gap-4 md:gap-5">
-                <div className="w-14 h-14 md:w-16 md:h-16 rounded-xl bg-gradient-to-br from-hotel-gold to-hotel-gold-dark flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                <div className="w-14 h-14 md:w-16 md:h-16 rounded-xl bg-gradient-to-br from-hotel-gold to-hotel-gold-dark flex items-center justify-center flex-shrink-0 group-hover:scale-105 group-active:scale-100 transition-transform">
                   <MessageCircle className="w-7 h-7 md:w-8 md:h-8 text-white" aria-hidden="true" />
                 </div>
                 <div className="flex-grow min-w-0">
                   <h3 className="text-white font-display text-lg md:text-xl mb-0.5">Guest Services</h3>
                   <p className="text-white/80 text-sm">Chat with our AI concierge</p>
                 </div>
-                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-hotel-gold/20 flex items-center justify-center group-hover:bg-hotel-gold/30 transition-colors" aria-hidden="true">
+                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-hotel-gold/20 flex items-center justify-center group-hover:bg-hotel-gold/30 group-active:bg-hotel-gold/40 transition-colors" aria-hidden="true">
                   <span className="text-hotel-gold text-lg group-hover:translate-x-0.5 transition-transform">→</span>
                 </div>
               </div>
@@ -90,16 +90,16 @@ function SimpleLandingPage() {
             <Link
               to="/admin"
               aria-label="Access the admin panel to manage knowledge base and analytics"
-              className="group block border border-white/10 rounded-2xl p-5 md:p-6 flex items-center gap-4 md:gap-5 transition-all duration-300 hover:border-white/20 hover:bg-white/5 hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-hotel-gold focus-visible:ring-offset-2 focus-visible:ring-offset-hotel-dark"
+              className="group block border border-white/10 rounded-2xl p-5 md:p-6 flex items-center gap-4 md:gap-5 transition-all duration-300 hover:border-white/20 hover:bg-white/5 hover:-translate-y-0.5 active:scale-[0.98] active:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-hotel-gold focus-visible:ring-offset-2 focus-visible:ring-offset-hotel-dark"
             >
-              <div className="w-14 h-14 md:w-16 md:h-16 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0 group-hover:bg-white/15 transition-colors">
+              <div className="w-14 h-14 md:w-16 md:h-16 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0 group-hover:bg-white/15 group-active:bg-white/20 transition-colors">
                 <Settings className="w-7 h-7 md:w-8 md:h-8 text-white/70" aria-hidden="true" />
               </div>
               <div className="flex-grow min-w-0">
                 <h3 className="text-white font-display text-lg md:text-xl mb-0.5">Admin Panel</h3>
                 <p className="text-white/70 text-sm">Manage knowledge base & analytics</p>
               </div>
-              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors" aria-hidden="true">
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-white/10 group-active:bg-white/15 transition-colors" aria-hidden="true">
                 <span className="text-white/50 text-lg group-hover:text-white/70 group-hover:translate-x-0.5 transition-all">→</span>
               </div>
             </Link>

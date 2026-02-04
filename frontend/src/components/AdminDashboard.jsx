@@ -61,7 +61,7 @@ const StatCard = memo(function StatCard({ icon: Icon, iconBg, iconColor, trendIc
   return (
     <Component
       onClick={onClick}
-      className={`bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all text-left w-full ${onClick ? 'cursor-pointer hover:border-rose-200' : ''}`}
+      className={`bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all text-left w-full ${onClick ? 'cursor-pointer hover:border-rose-200 active:scale-[0.98] active:border-rose-300' : ''}`}
       aria-label={ariaLabel}
     >
       <div className="flex items-center justify-between mb-3 md:mb-4">
@@ -540,13 +540,13 @@ function AdminDashboard() {
             <div className="flex gap-3">
               <button
                 onClick={cancelPdfReplace}
-                className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors text-sm font-medium"
+                className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50 active:bg-gray-100 active:scale-[0.98] transition-all text-sm font-medium"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmPdfReplace}
-                className="flex-1 px-4 py-2.5 bg-hotel-gold text-white rounded-xl hover:bg-hotel-gold-dark transition-colors text-sm font-medium"
+                className="flex-1 px-4 py-2.5 bg-hotel-gold text-white rounded-xl hover:bg-hotel-gold-dark active:scale-[0.98] transition-all text-sm font-medium"
               >
                 Replace
               </button>
@@ -560,7 +560,7 @@ function AdminDashboard() {
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 md:py-4 flex items-center gap-3 md:gap-4">
           <button
             onClick={() => navigate('/')}
-            className="p-2 text-white/60 hover:text-white transition-colors rounded-lg hover:bg-white/10"
+            className="p-2 text-white/60 hover:text-white active:text-white active:scale-95 transition-all rounded-lg hover:bg-white/10 active:bg-white/10"
             aria-label="Go back to home"
           >
             <ArrowLeft className="w-5 h-5" />
@@ -588,7 +588,7 @@ function AdminDashboard() {
                 aria-expanded={showDateDropdown}
                 aria-haspopup="listbox"
                 aria-label={`Date range: ${DATE_RANGES.find(r => r.value === dateRange)?.label}`}
-                className="flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 md:py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white/80 hover:text-white text-xs md:text-sm transition-all"
+                className="flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 md:py-2 bg-white/10 hover:bg-white/20 active:bg-white/30 active:scale-[0.98] rounded-lg text-white/80 hover:text-white text-xs md:text-sm transition-all"
               >
                 <Calendar className="w-3.5 h-3.5 md:w-4 md:h-4" aria-hidden="true" />
                 <span className="hidden sm:inline">{DATE_RANGES.find(r => r.value === dateRange)?.label}</span>
@@ -623,7 +623,7 @@ function AdminDashboard() {
             <button
               onClick={handleRefresh}
               disabled={isRefreshing}
-              className="p-2 md:p-2.5 text-white/60 hover:text-white transition-all rounded-lg hover:bg-white/10 disabled:opacity-50"
+              className="p-2 md:p-2.5 text-white/60 hover:text-white active:text-white active:scale-95 transition-all rounded-lg hover:bg-white/10 active:bg-white/10 disabled:opacity-50"
               aria-label="Refresh statistics"
             >
               <RefreshCw className={`w-4 h-4 md:w-5 md:h-5 ${isRefreshing ? 'animate-spin' : ''}`} />

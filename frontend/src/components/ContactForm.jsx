@@ -76,7 +76,7 @@ function ContactForm({ onSubmit, onCancel }) {
             </div>
             <button
               onClick={onCancel}
-              className="p-1.5 md:p-2 text-gray-400 hover:text-hotel-charcoal hover:bg-gray-100 rounded-lg transition-colors"
+              className="p-1.5 md:p-2 text-gray-400 hover:text-hotel-charcoal hover:bg-gray-100 active:bg-gray-200 active:scale-95 rounded-lg transition-all touch-target"
             >
               <X className="w-4 h-4 md:w-5 md:h-5" />
             </button>
@@ -182,7 +182,7 @@ function ContactForm({ onSubmit, onCancel }) {
               onClick={onCancel}
               className="flex-1 px-4 py-2.5 md:py-3 text-gray-600 bg-gray-100
                          rounded-xl text-xs md:text-sm font-medium
-                         hover:bg-gray-200 transition-colors"
+                         hover:bg-gray-200 active:bg-gray-300 active:scale-[0.98] transition-all"
             >
               Maybe Later
             </button>
@@ -191,7 +191,7 @@ function ContactForm({ onSubmit, onCancel }) {
               disabled={isSubmitting}
               className="flex-1 px-4 py-2.5 md:py-3 bg-gradient-to-br from-hotel-gold to-hotel-gold-dark text-white rounded-xl
                          text-xs md:text-sm font-medium
-                         hover:opacity-90 transition-all
+                         hover:opacity-90 active:opacity-80 active:scale-[0.98] transition-all
                          shadow-lg shadow-hotel-gold/25
                          disabled:opacity-50 disabled:cursor-not-allowed
                          flex items-center justify-center gap-2"

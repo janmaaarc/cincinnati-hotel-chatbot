@@ -339,7 +339,7 @@ function ChatInterface() {
   }
 
   return (
-    <div className="h-screen bg-hotel-cream flex flex-col overflow-hidden animate-page-enter">
+    <div className="fixed inset-0 bg-hotel-cream flex flex-col overflow-hidden animate-page-enter">
       {/* Screen reader only page title */}
       <h1 className="sr-only">Chat with Cincinnati Hotel Virtual Concierge</h1>
 
@@ -369,7 +369,7 @@ function ChatInterface() {
         <div className="max-w-4xl mx-auto px-4 md:px-6 py-3 md:py-4 flex items-center gap-3 md:gap-4">
           <button
             onClick={() => navigate('/')}
-            className="p-2 text-white/60 hover:text-white transition-colors rounded-lg hover:bg-white/10"
+            className="p-2 text-white/60 hover:text-white active:text-white active:scale-95 transition-all rounded-lg hover:bg-white/10 active:bg-white/10"
             aria-label="Go back"
           >
             <ArrowLeft className="w-5 h-5" />
@@ -420,6 +420,7 @@ function ChatInterface() {
                     onClick={() => sendMessage(suggestion.text)}
                     className="flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-200 rounded-full
                                text-sm text-hotel-charcoal hover:border-hotel-gold hover:bg-hotel-gold/5
+                               active:border-hotel-gold active:bg-hotel-gold/10 active:scale-[0.98]
                                transition-all duration-200 shadow-sm"
                   >
                     <suggestion.icon className="w-3.5 h-3.5 text-hotel-gold" aria-hidden="true" />
@@ -469,11 +470,11 @@ function ChatInterface() {
                       {formatTime(message.timestamp).relative}
                     </time>
                   )}
-                  {/* Copy button for assistant messages */}
+                  {/* Copy button for assistant messages - always visible on mobile */}
                   {message.role === 'assistant' && !message.isError && (
                     <button
                       onClick={() => copyToClipboard(message.content, message.id)}
-                      className="opacity-0 group-hover:opacity-100 focus:opacity-100 p-1 text-gray-400 hover:text-hotel-gold transition-all"
+                      className="opacity-60 md:opacity-0 group-hover:opacity-100 focus:opacity-100 p-1.5 text-gray-400 hover:text-hotel-gold active:text-hotel-gold active:scale-95 transition-all touch-target"
                       aria-label="Copy message"
                     >
                       {copiedMessageId === message.id ? (
@@ -508,6 +509,7 @@ function ChatInterface() {
                     onClick={() => handleSuggestionClick(suggestion.text)}
                     className="flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 md:py-2.5 bg-white border border-gray-200 rounded-lg md:rounded-xl
                                text-sm md:text-base text-hotel-charcoal hover:border-hotel-gold hover:bg-hotel-gold/5
+                               active:border-hotel-gold active:bg-hotel-gold/10 active:scale-[0.98]
                                transition-all duration-200 shadow-sm hover:shadow"
                   >
                     <suggestion.icon className="w-3.5 h-3.5 md:w-4 md:h-4 text-hotel-gold" aria-hidden="true" />
@@ -552,7 +554,7 @@ function ChatInterface() {
         )}
 
         {/* Input Area */}
-        <div className="border-t border-gray-200 bg-white flex-shrink-0">
+        <div className="border-t border-gray-200 bg-white flex-shrink-0 safe-area-pb">
           {/* Quick Suggestions Panel */}
           <div className={`overflow-hidden transition-all duration-300 ${showQuickPanel ? 'max-h-48' : 'max-h-0'}`}>
             <div className="p-3 md:p-4 pb-0 border-b border-gray-100">
@@ -567,6 +569,7 @@ function ChatInterface() {
                     }}
                     className="flex items-center gap-1.5 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg
                                text-sm text-hotel-charcoal hover:border-hotel-gold hover:bg-hotel-gold/5
+                               active:border-hotel-gold active:bg-hotel-gold/10 active:scale-[0.98]
                                transition-all duration-200"
                   >
                     <suggestion.icon className="w-3.5 h-3.5 text-hotel-gold" aria-hidden="true" />
