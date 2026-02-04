@@ -365,7 +365,7 @@ function ChatInterface() {
       )}
 
       {/* Header */}
-      <header className="bg-hotel-dark shadow-lg sticky top-0 z-20">
+      <header className="bg-hotel-dark shadow-lg flex-shrink-0 z-20">
         <div className="max-w-4xl mx-auto px-4 md:px-6 py-3 md:py-4 flex items-center gap-3 md:gap-4">
           <button
             onClick={() => navigate('/')}
@@ -401,6 +401,35 @@ function ChatInterface() {
           aria-live="polite"
           aria-label="Chat messages"
         >
+          {/* Welcome message when no messages */}
+          {messages.length === 0 && (
+            <div className="flex flex-col items-center justify-center h-full text-center px-4 animate-fadeIn">
+              <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden shadow-lg shadow-hotel-gold/20 mb-6">
+                <img src="/hotel-logo.png" alt="" className="w-full h-full object-cover" />
+              </div>
+              <h2 className="text-xl md:text-2xl font-display text-hotel-charcoal mb-2">
+                Welcome to Cincinnati Hotel
+              </h2>
+              <p className="text-gray-500 text-sm md:text-base max-w-sm mb-6">
+                I'm your virtual concierge. Ask me anything about our rooms, amenities, dining, or services.
+              </p>
+              <div className="flex flex-wrap justify-center gap-2">
+                {QUICK_SUGGESTIONS.slice(0, 3).map((suggestion) => (
+                  <button
+                    key={suggestion.text}
+                    onClick={() => sendMessage(suggestion.text)}
+                    className="flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-200 rounded-full
+                               text-sm text-hotel-charcoal hover:border-hotel-gold hover:bg-hotel-gold/5
+                               transition-all duration-200 shadow-sm"
+                  >
+                    <suggestion.icon className="w-3.5 h-3.5 text-hotel-gold" aria-hidden="true" />
+                    <span>{suggestion.text}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {messages.map((message) => (
             <div
               key={message.id}
@@ -573,7 +602,7 @@ function ChatInterface() {
                   maxLength={MAX_CHARS}
                   autoComplete="off"
                   aria-label="Type your message to the concierge"
-                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 md:py-3.5
+                  className="w-full bg-gray-50 border border-gray-200 rounded-full px-5 py-3 md:py-3.5
                              text-hotel-charcoal placeholder-gray-500 text-base
                              focus:outline-none focus:ring-2 focus:ring-hotel-gold/30 focus:border-hotel-gold/50
                              transition-all"

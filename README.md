@@ -26,6 +26,7 @@ This system allows hotel guests to chat with an AI assistant that answers questi
   - Decorative elements hidden from screen readers
 
 ### AI Virtual Concierge
+- Welcome message with quick-start suggestions for new visitors
 - Answers guest questions using uploaded PDF knowledge base
 - Quick action buttons for common questions
 - Real-time typing indicators with screen reader announcements
