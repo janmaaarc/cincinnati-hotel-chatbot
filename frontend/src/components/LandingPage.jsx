@@ -23,7 +23,9 @@ const ROOMS = [
     desc: 'Elegant comfort with stunning city views and premium amenities',
     image: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     size: '350 sq ft',
-    price: 'From $199',
+    price: '$199',
+    bed: 'King or 2 Queens',
+    features: ['City View', 'Free WiFi', 'Mini Bar'],
     width: 800,
     height: 600
   },
@@ -32,7 +34,9 @@ const ROOMS = [
     desc: 'Spacious luxury featuring a separate living area and work desk',
     image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     size: '550 sq ft',
-    price: 'From $349',
+    price: '$349',
+    bed: 'King Bed',
+    features: ['Living Area', 'Work Desk', 'Soaking Tub'],
     width: 800,
     height: 600
   },
@@ -41,7 +45,9 @@ const ROOMS = [
     desc: 'Ultimate luxury with panoramic views and exclusive butler service',
     image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     size: '900 sq ft',
-    price: 'From $599',
+    price: '$599',
+    bed: 'King Bed + Sofa Bed',
+    features: ['Panoramic View', 'Butler Service', 'Dining Room'],
     width: 800,
     height: 600
   }
@@ -233,15 +239,7 @@ function LandingPage() {
             ))}
           </nav>
 
-          <div className="hidden lg:flex items-center gap-6">
-            <a
-              href="tel:+15135550123"
-              className="flex items-center gap-2 text-white/80 hover:text-hotel-gold text-sm transition-colors"
-              aria-label="Call us at +1 (513) 555-0123"
-            >
-              <Phone className="w-4 h-4 text-hotel-gold" aria-hidden="true" />
-              <span>+1 (513) 555-0123</span>
-            </a>
+          <div className="hidden md:flex items-center gap-4 lg:gap-6">
             <Link
               to="/admin"
               className="flex items-center gap-1.5 text-white/80 hover:text-hotel-gold text-sm transition-colors"
@@ -249,17 +247,33 @@ function LandingPage() {
               <Shield className="w-4 h-4" aria-hidden="true" />
               <span>Admin</span>
             </Link>
+            <a
+              href="tel:+15135550123"
+              className="inline-flex items-center gap-2 bg-hotel-gold hover:bg-hotel-gold-dark text-white px-5 py-2.5 rounded-full font-semibold text-sm transition-all duration-300 shadow-lg shadow-hotel-gold/25 hover:scale-105"
+            >
+              <Phone className="w-4 h-4" aria-hidden="true" />
+              <span>Book Now</span>
+            </a>
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsMobileMenuOpen(true)}
-            className="md:hidden p-2 text-white/80 hover:text-hotel-gold transition-colors"
-            aria-label="Open menu"
-            aria-expanded={isMobileMenuOpen}
-          >
-            <Menu className="w-6 h-6" />
-          </button>
+          {/* Mobile Header Actions */}
+          <div className="flex md:hidden items-center gap-2">
+            <a
+              href="tel:+15135550123"
+              className="p-2 text-hotel-gold hover:text-hotel-gold-dark transition-colors"
+              aria-label="Call to book"
+            >
+              <Phone className="w-5 h-5" />
+            </a>
+            <button
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="p-2 text-white/80 hover:text-hotel-gold transition-colors"
+              aria-label="Open menu"
+              aria-expanded={isMobileMenuOpen}
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+          </div>
         </div>
       </header>
 
@@ -316,6 +330,14 @@ function LandingPage() {
                   <Shield className="w-5 h-5" />
                   <span>Admin Dashboard</span>
                 </Link>
+                <a
+                  href="tel:+15135550123"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center justify-center gap-2 bg-hotel-gold hover:bg-hotel-gold-dark text-white px-6 py-3 rounded-full font-semibold transition-all duration-300"
+                >
+                  <Phone className="w-4 h-4" />
+                  <span>Book Now</span>
+                </a>
               </div>
             </div>
           </nav>
@@ -335,7 +357,7 @@ function LandingPage() {
             aria-label="Luxury hotel exterior at sunset"
           />
 
-          <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 md:px-6 pt-20">
+          <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 md:px-8 pt-24 pb-8">
             <div className="animate-fadeInUp max-w-4xl w-full text-center">
               <div className="flex items-center justify-center gap-1.5 mb-6">
                 <div className="flex items-center gap-0.5" aria-label="5 star rating">
@@ -368,7 +390,7 @@ function LandingPage() {
           <div className="relative z-10 pb-10 flex justify-center">
             <button
               onClick={() => scrollToSection('about')}
-              className="text-white/50 hover:text-hotel-gold transition-colors animate-bounce"
+              className="text-white/70 hover:text-hotel-gold transition-colors animate-bounce"
               aria-label="Scroll to about section"
             >
               <ChevronDown className="w-8 h-8" />
@@ -478,11 +500,12 @@ function LandingPage() {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-6">
+            {/* Horizontal scroll on mobile, grid on desktop */}
+            <div className="flex md:grid md:grid-cols-3 gap-5 md:gap-6 overflow-x-auto pb-4 md:pb-0 snap-x snap-mandatory scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
               {ROOMS.map((room, index) => (
                 <article
                   key={index}
-                  className="bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-hotel-gold/30 hover:shadow-2xl transition-all duration-300 group"
+                  className="flex-shrink-0 w-[85vw] sm:w-[70vw] md:w-auto bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-hotel-gold/30 hover:shadow-2xl transition-all duration-300 group snap-center"
                 >
                   <div className="relative h-52 md:h-56 overflow-hidden">
                     <img
@@ -490,21 +513,33 @@ function LandingPage() {
                       alt={`${room.name} - ${room.desc}`}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       loading="lazy"
+                      width={room.width}
+                      height={room.height}
                     />
                     <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-semibold text-hotel-charcoal shadow-sm">
                       {room.size}
                     </div>
                     <div className="absolute bottom-4 left-4 bg-hotel-gold text-white px-3 py-1.5 rounded-full text-sm font-semibold shadow-lg">
-                      {room.price}
+                      <span className="text-white/80 text-xs">from </span>{room.price}<span className="text-white/80 text-xs">/night</span>
                     </div>
                   </div>
-                  <div className="p-6">
-                    <h3 className="font-display text-xl md:text-2xl text-hotel-charcoal mb-2">{room.name}</h3>
-                    <p className="text-gray-600 leading-relaxed text-sm md:text-base">{room.desc}</p>
+                  <div className="p-5 md:p-6">
+                    <h3 className="font-display text-xl md:text-2xl text-hotel-charcoal mb-1">{room.name}</h3>
+                    <p className="text-hotel-gold text-sm font-medium mb-2">{room.bed}</p>
+                    <p className="text-gray-600 leading-relaxed text-sm md:text-base mb-4">{room.desc}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {room.features.map((feature, i) => (
+                        <span key={i} className="text-xs bg-hotel-cream text-hotel-charcoal px-2.5 py-1 rounded-full">
+                          {feature}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </article>
               ))}
             </div>
+            {/* Scroll hint for mobile */}
+            <p className="md:hidden text-center text-gray-400 text-xs mt-3">Swipe to see more rooms →</p>
           </div>
         </section>
 
@@ -607,7 +642,7 @@ function LandingPage() {
                 >
                   <button
                     onClick={() => setOpenFaq(openFaq === index ? null : index)}
-                    className="w-full flex items-center justify-between p-5 md:p-6 text-left hover:bg-gray-50 transition-colors"
+                    className="w-full flex items-center justify-between p-5 md:p-6 min-h-[56px] text-left hover:bg-gray-50 transition-colors"
                     aria-expanded={openFaq === index}
                     aria-controls={`faq-answer-${index}`}
                   >
@@ -704,7 +739,7 @@ function LandingPage() {
                     <a
                       key={index}
                       href="#"
-                      className="group w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:bg-hotel-gold hover:border-hotel-gold hover:text-white transition-all duration-300 hover:scale-110"
+                      className="group w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/70 hover:bg-hotel-gold hover:border-hotel-gold hover:text-white transition-all duration-300 hover:scale-110"
                       aria-label={`Follow us on ${label}`}
                     >
                       <Icon className="w-5 h-5 group-hover:scale-110 transition-transform" aria-hidden="true" />
@@ -747,7 +782,7 @@ function LandingPage() {
                         <Phone className="w-3.5 h-3.5" aria-hidden="true" />
                       </div>
                       <div>
-                        <p className="text-white/40 text-xs mb-0.5">Phone</p>
+                        <p className="text-white/60 text-xs mb-0.5">Phone</p>
                         <p className="text-white/80 group-hover:text-hotel-gold transition-colors">+1 (513) 555-0123</p>
                       </div>
                     </a>
@@ -758,7 +793,7 @@ function LandingPage() {
                         <Mail className="w-3.5 h-3.5" aria-hidden="true" />
                       </div>
                       <div>
-                        <p className="text-white/40 text-xs mb-0.5">Email</p>
+                        <p className="text-white/60 text-xs mb-0.5">Email</p>
                         <p className="text-white/80 group-hover:text-hotel-gold transition-colors">info@cincinnatihotel.com</p>
                       </div>
                     </a>
@@ -768,7 +803,7 @@ function LandingPage() {
                       <MapPin className="w-3.5 h-3.5 text-white/60" aria-hidden="true" />
                     </div>
                     <div>
-                      <p className="text-white/40 text-xs mb-0.5">Address</p>
+                      <p className="text-white/60 text-xs mb-0.5">Address</p>
                       <p className="text-white/80">123 Main Street<br />Cincinnati, OH 45202</p>
                     </div>
                   </li>
@@ -784,21 +819,21 @@ function LandingPage() {
                 <table className="w-full">
                   <tbody className="text-sm">
                     <tr>
-                      <td className="text-white/50 py-2">Check-in</td>
+                      <td className="text-white/70 py-2">Check-in</td>
                       <td className="text-white font-medium py-2 text-right">3:00 PM</td>
                     </tr>
                     <tr>
                       <td colSpan={2} className="py-0"><div className="h-px bg-white/10"></div></td>
                     </tr>
                     <tr>
-                      <td className="text-white/50 py-2">Check-out</td>
+                      <td className="text-white/70 py-2">Check-out</td>
                       <td className="text-white font-medium py-2 text-right">11:00 AM</td>
                     </tr>
                     <tr>
                       <td colSpan={2} className="py-0"><div className="h-px bg-white/10"></div></td>
                     </tr>
                     <tr>
-                      <td className="text-white/50 py-2">Front Desk</td>
+                      <td className="text-white/70 py-2">Front Desk</td>
                       <td className="text-hotel-gold font-semibold py-2 text-right">24/7</td>
                     </tr>
                   </tbody>
@@ -810,18 +845,18 @@ function LandingPage() {
             <div className="border-t border-white/10 pt-8">
               <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                 <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
-                  <p className="text-white/40 text-sm">
+                  <p className="text-white/60 text-sm">
                     &copy; {new Date().getFullYear()} Cincinnati Hotel & Suites
                   </p>
                   <div className="hidden sm:block w-1 h-1 bg-white/20 rounded-full"></div>
-                  <p className="text-white/40 text-sm">All rights reserved</p>
+                  <p className="text-white/60 text-sm">All rights reserved</p>
                 </div>
                 <div className="flex items-center gap-1">
                   {['Privacy Policy', 'Terms of Service', 'Accessibility'].map((item, index) => (
                     <a
                       key={item}
                       href="#"
-                      className="text-white/40 hover:text-hotel-gold text-sm transition-colors px-3 py-1 rounded-lg hover:bg-white/5"
+                      className="text-white/60 hover:text-hotel-gold text-sm transition-colors px-3 py-1 rounded-lg hover:bg-white/5"
                     >
                       {item}
                     </a>

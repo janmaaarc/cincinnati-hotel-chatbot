@@ -17,20 +17,21 @@ const MAX_RETRIES = 3
 const RETRY_DELAY = 1000
 
 const formatRelativeTime = (date) => {
-  if (!date) return ''
+  if (!date) return { relative: '', absolute: '' }
   const now = new Date()
   const diff = Math.floor((now - date) / 1000)
+  const absolute = date.toLocaleString()
 
-  if (diff < 60) return 'Just now'
+  if (diff < 60) return { relative: 'Just now', absolute }
   if (diff < 3600) {
     const mins = Math.floor(diff / 60)
-    return `${mins} min${mins > 1 ? 's' : ''} ago`
+    return { relative: `${mins} min${mins > 1 ? 's' : ''} ago`, absolute }
   }
   if (diff < 86400) {
     const hours = Math.floor(diff / 3600)
-    return `${hours} hour${hours > 1 ? 's' : ''} ago`
+    return { relative: `${hours} hour${hours > 1 ? 's' : ''} ago`, absolute }
   }
-  return date.toLocaleDateString()
+  return { relative: date.toLocaleDateString(), absolute }
 }
 
 function ChatInterface() {
@@ -91,7 +92,8 @@ function ChatInterface() {
   }
 
   const formatTime = (date) => {
-    return formatRelativeTime(date)
+    const { relative, absolute } = formatRelativeTime(date)
+    return { relative, absolute }
   }
 
   const clearChat = () => {
@@ -245,6 +247,14 @@ function ChatInterface() {
 
   return (
     <div className="min-h-screen bg-hotel-cream flex flex-col">
+      {/* Skip to chat input - Accessibility */}
+      <a
+        href="#chat-input"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:bg-hotel-gold focus:text-white focus:px-4 focus:py-2 focus:rounded-lg"
+      >
+        Skip to chat input
+      </a>
+
       {/* Header */}
       <header className="bg-hotel-dark shadow-lg sticky top-0 z-20">
         <div className="max-w-4xl mx-auto px-4 md:px-6 py-3 md:py-4 flex items-center gap-3 md:gap-4">
@@ -306,9 +316,15 @@ function ChatInterface() {
                   <p className="text-base md:text-lg leading-relaxed whitespace-pre-wrap">{message.content}</p>
                 </div>
                 <div className={`flex items-center gap-2 mt-1 px-1 ${message.role === 'user' ? 'justify-end' : ''}`}>
-                  <p className="text-xs md:text-sm text-gray-500">
-                    {message.timestamp ? formatTime(message.timestamp) : ''}
-                  </p>
+                  {message.timestamp && (
+                    <time
+                      dateTime={message.timestamp.toISOString()}
+                      className="text-xs md:text-sm text-gray-500"
+                      aria-label={`Sent at ${formatTime(message.timestamp).absolute}`}
+                    >
+                      {formatTime(message.timestamp).relative}
+                    </time>
+                  )}
                   {message.isError && retryMessage && (
                     <button
                       onClick={handleRetry}
@@ -379,12 +395,14 @@ function ChatInterface() {
             <div className="flex gap-2 md:gap-3 items-center">
               <div className="flex-1 relative">
                 <input
+                  id="chat-input"
                   type="text"
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value.slice(0, MAX_CHARS))}
                   placeholder="Type your message..."
                   maxLength={MAX_CHARS}
                   autoComplete="off"
+                  aria-label="Type your message to the concierge"
                   className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 md:py-3.5
                              text-hotel-charcoal placeholder-gray-500 text-base
                              focus:outline-none focus:ring-2 focus:ring-hotel-gold/30 focus:border-hotel-gold/50
@@ -410,14 +428,14 @@ function ChatInterface() {
               </button>
             </div>
             <div className="flex justify-between items-center mt-1.5 px-1">
-              <span className={`text-xs ${inputValue.length >= MAX_CHARS * 0.9 ? 'text-rose-500' : 'text-gray-400'}`}>
+              <span className={`text-xs ${inputValue.length >= MAX_CHARS * 0.9 ? 'text-rose-500' : 'text-gray-500'}`}>
                 {inputValue.length}/{MAX_CHARS}
               </span>
               {messages.length > 1 && (
                 <button
                   type="button"
                   onClick={clearChat}
-                  className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+                  className="text-xs text-gray-500 hover:text-gray-600 transition-colors"
                 >
                   Clear chat
                 </button>

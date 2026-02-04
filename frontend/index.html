@@ -17,13 +17,85 @@
       base-uri 'self';
       form-action 'self';
     " />
+
+    <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏨</text></svg>" />
+
+    <!-- Viewport -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Cincinnati Hotel - Virtual Assistant and Hotel Information" />
-    <title>Cincinnati Hotel</title>
+
+    <!-- Primary Meta Tags -->
+    <title>Cincinnati Hotel & Suites | Luxury 5-Star Accommodations in Downtown Cincinnati</title>
+    <meta name="title" content="Cincinnati Hotel & Suites | Luxury 5-Star Accommodations in Downtown Cincinnati" />
+    <meta name="description" content="Experience timeless elegance at Cincinnati Hotel & Suites. Enjoy luxury accommodations, world-class amenities, fine dining, and exceptional hospitality in the heart of downtown Cincinnati since 1998." />
+    <meta name="keywords" content="Cincinnati hotel, luxury hotel, downtown Cincinnati, 5-star hotel, hotel suites, Ohio hotel, Cincinnati accommodations" />
+    <meta name="author" content="Cincinnati Hotel & Suites" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://cincinnatihotel.com/" />
+    <meta property="og:title" content="Cincinnati Hotel & Suites | Luxury 5-Star Accommodations" />
+    <meta property="og:description" content="Experience timeless elegance at Cincinnati Hotel & Suites. Luxury accommodations, world-class amenities, and exceptional hospitality in downtown Cincinnati." />
+    <meta property="og:image" content="https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:site_name" content="Cincinnati Hotel & Suites" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://cincinnatihotel.com/" />
+    <meta property="twitter:title" content="Cincinnati Hotel & Suites | Luxury 5-Star Accommodations" />
+    <meta property="twitter:description" content="Experience timeless elegance at Cincinnati Hotel & Suites. Luxury accommodations in downtown Cincinnati." />
+    <meta property="twitter:image" content="https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" />
+
+    <!-- Additional Meta -->
+    <meta name="theme-color" content="#d4af37" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Cincinnati Hotel" />
+
+    <!-- Preconnect to external domains for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://images.unsplash.com">
+
+    <!-- Fonts with font-display: swap -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Hotel",
+      "name": "Cincinnati Hotel & Suites",
+      "description": "Luxury 5-star hotel in downtown Cincinnati offering world-class amenities and exceptional hospitality since 1998.",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "123 Main Street",
+        "addressLocality": "Cincinnati",
+        "addressRegion": "OH",
+        "postalCode": "45202",
+        "addressCountry": "US"
+      },
+      "telephone": "+1-513-555-0123",
+      "email": "info@cincinnatihotel.com",
+      "starRating": {
+        "@type": "Rating",
+        "ratingValue": "5"
+      },
+      "priceRange": "$199 - $599",
+      "amenityFeature": [
+        {"@type": "LocationFeatureSpecification", "name": "Free WiFi"},
+        {"@type": "LocationFeatureSpecification", "name": "Valet Parking"},
+        {"@type": "LocationFeatureSpecification", "name": "Fine Dining"},
+        {"@type": "LocationFeatureSpecification", "name": "Room Service"},
+        {"@type": "LocationFeatureSpecification", "name": "Fitness Center"},
+        {"@type": "LocationFeatureSpecification", "name": "Indoor Pool"}
+      ],
+      "checkinTime": "15:00",
+      "checkoutTime": "11:00"
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>

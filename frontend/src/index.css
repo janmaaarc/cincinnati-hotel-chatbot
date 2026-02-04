@@ -30,6 +30,37 @@
     -moz-osx-font-smoothing: grayscale;
     background-color: var(--color-hotel-cream);
   }
+
+  /* Custom focus styles for accessibility */
+  *:focus-visible {
+    outline: 2px solid var(--color-hotel-gold);
+    outline-offset: 2px;
+  }
+
+  /* Remove default focus for mouse users */
+  *:focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  /* Button and link focus states */
+  button:focus-visible,
+  a:focus-visible {
+    outline: 2px solid var(--color-hotel-gold);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 @layer base {
@@ -121,6 +152,16 @@
   .animate-pulse-gold {
     animation: pulse-gold 2s infinite;
   }
+
+  /* Hide scrollbar for horizontal scroll areas */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @layer components {
@@ -160,4 +201,25 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+
+  /* Image blur-up placeholder */
+  .img-blur-up {
+    background: linear-gradient(135deg, #e8e4df 0%, #f5f0e8 50%, #e8e4df 100%);
+    background-size: 200% 200%;
+    animation: img-shimmer 1.5s ease-in-out infinite;
+  }
+
+  .img-blur-up img {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+  }
+
+  .img-blur-up img.loaded {
+    opacity: 1;
+  }
+}
+
+@keyframes img-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }

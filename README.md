@@ -5,15 +5,17 @@ A full-stack virtual concierge chatbot system for Cincinnati Hotel, featuring an
 ## Features
 
 ### Landing Page
-- **Hero Section** - Full-screen hero with animated content
+- **Hero Section** - Full-screen hero with animated content and improved mobile spacing
 - **About Section** - Hotel history and key features
 - **Amenities** - 6 world-class amenities showcase
-- **Rooms & Suites** - Room cards with pricing and details
+- **Rooms & Suites** - Enhanced room cards with bed types, features, and clear pricing
 - **Guest Testimonials** - 3 featured guest reviews
 - **Local Attractions** - Nearby Cincinnati attractions guide
-- **FAQ Section** - Expandable frequently asked questions
+- **FAQ Section** - Expandable FAQs with 56px touch targets
 - **CTA Banner** - Call to action with phone and chat options
 - **Back to Top Button** - Smooth scroll navigation
+- **Book Now Button** - Prominent CTA in header for reservations
+- **Mobile Horizontal Scroll** - Swipeable room cards on mobile devices
 
 ### AI Virtual Concierge
 - Answers guest questions using uploaded PDF knowledge base
@@ -23,8 +25,9 @@ A full-stack virtual concierge chatbot system for Cincinnati Hotel, featuring an
 - **Chat Persistence** - Messages saved to localStorage across sessions
 - **Retry Mechanism** - Automatic retry on failed requests (up to 3 attempts)
 - **Character Counter** - Visual feedback for message length (1000 char limit)
-- **Relative Timestamps** - Human-readable time display ("Just now", "5 mins ago")
+- **Relative Timestamps** - Human-readable time with accessible aria-labels
 - **Clear Chat** - Option to reset conversation
+- **Skip to Input** - Accessibility skip link for keyboard users
 
 ### Admin Dashboard
 - Real-time statistics and metrics via Socket.io
@@ -39,9 +42,13 @@ A full-stack virtual concierge chatbot system for Cincinnati Hotel, featuring an
 - **404 Page** - Custom not found page
 - **Error Boundary** - Graceful error handling
 - **SEO Optimized** - Open Graph, Twitter cards, structured data
-- **Accessibility** - ARIA labels, skip links, focus management
+- **Accessibility** - ARIA labels, skip links, focus management, WCAG contrast compliance
 - **Lazy Loading** - Optimized image loading with width/height attributes
 - **Debounced Scroll** - Performance-optimized scroll event handling
+- **Focus Visible** - Custom gold focus rings for keyboard navigation
+- **Reduced Motion** - Respects `prefers-reduced-motion` user preference
+- **Image Placeholders** - Shimmer effect during image loading
+- **Preconnect** - Optimized font and image loading with preconnect hints
 
 ## Tech Stack
 
@@ -210,10 +217,14 @@ npm run dev
 ## Accessibility
 
 - Skip to main content link
+- Skip to chat input link (on chat page)
 - ARIA labels on interactive elements
 - Keyboard navigation support
 - Screen reader friendly
 - Focus management for modals
+- Custom focus-visible ring styles
+- Respects prefers-reduced-motion
+- WCAG AA contrast compliance
 
 ## SEO
 
