@@ -1,100 +1,158 @@
 import { Link } from 'react-router-dom'
-import { MessageCircle, Settings, Star, Clock, Shield } from 'lucide-react'
+import { MessageCircle, Settings, Star, Clock, Shield, Sparkles, ArrowRight } from 'lucide-react'
 
 function SimpleLandingPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-hotel-dark via-hotel-charcoal to-hotel-dark flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background decorations */}
+    <div className="min-h-screen bg-hotel-dark flex items-center justify-center p-4 md:p-8 relative overflow-hidden">
+      {/* Animated background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 -left-20 w-80 h-80 bg-hotel-gold/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-1/4 -right-20 w-80 h-80 bg-hotel-gold/10 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-hotel-gold/5 rounded-full blur-3xl"></div>
+        {/* Gradient orbs */}
+        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-hotel-gold/8 rounded-full blur-[100px] animate-pulse"></div>
+        <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-hotel-gold/6 rounded-full blur-[80px]"></div>
+
+        {/* Grid pattern overlay */}
+        <div
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage: `linear-gradient(rgba(212, 175, 55, 0.1) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(212, 175, 55, 0.1) 1px, transparent 1px)`,
+            backgroundSize: '60px 60px'
+          }}
+        ></div>
       </div>
 
-      <div className="text-center max-w-xl relative z-10 animate-fadeIn">
-        {/* 5-Star Badge */}
-        <div className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full mb-8">
-          <div className="flex">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} className="w-3.5 h-3.5 text-hotel-gold fill-hotel-gold" />
-            ))}
+      <div className="w-full max-w-2xl relative z-10">
+        {/* Header Section */}
+        <div className="text-center mb-12 md:mb-16">
+          {/* 5-Star Badge */}
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-hotel-gold/20 to-hotel-gold/10 backdrop-blur-sm px-5 py-2.5 rounded-full mb-8 border border-hotel-gold/20">
+            <div className="flex gap-0.5">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className="w-3.5 h-3.5 text-hotel-gold fill-hotel-gold" />
+              ))}
+            </div>
+            <span className="text-hotel-gold/90 text-xs font-semibold tracking-wide uppercase">Five Star Luxury</span>
           </div>
-          <span className="text-white/80 text-xs font-medium ml-1">Luxury Experience</span>
+
+          {/* Logo */}
+          <div className="flex items-center justify-center gap-4 md:gap-5 mb-8">
+            <div className="relative">
+              <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-hotel-gold via-hotel-gold to-hotel-gold-dark flex items-center justify-center shadow-2xl shadow-hotel-gold/40">
+                <span className="text-white font-display text-4xl md:text-5xl font-bold">C</span>
+              </div>
+              {/* Glow effect */}
+              <div className="absolute inset-0 rounded-2xl bg-hotel-gold/30 blur-xl -z-10"></div>
+            </div>
+            <div className="text-left">
+              <h1 className="text-white font-display text-3xl md:text-4xl lg:text-5xl tracking-wide">CINCINNATI</h1>
+              <p className="text-hotel-gold text-sm md:text-base tracking-[0.3em] uppercase font-medium mt-1">Hotel & Suites</p>
+            </div>
+          </div>
+
+          {/* Welcome Text */}
+          <div className="space-y-3">
+            <h2 className="font-display text-2xl md:text-3xl lg:text-4xl text-white">
+              Virtual Concierge
+            </h2>
+            <p className="text-white/50 text-base md:text-lg max-w-md mx-auto">
+              How may we assist you today?
+            </p>
+          </div>
         </div>
 
-        {/* Logo */}
-        <div className="flex items-center justify-center gap-4 mb-10">
-          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-hotel-gold to-hotel-gold-dark flex items-center justify-center shadow-2xl shadow-hotel-gold/30 animate-pulse-gold">
-            <span className="text-white font-display text-4xl font-bold">C</span>
-          </div>
-          <div className="text-left">
-            <h1 className="text-white font-display text-3xl md:text-4xl tracking-wider">CINCINNATI</h1>
-            <p className="text-hotel-gold text-sm tracking-[0.25em] uppercase font-medium">Hotel & Suites</p>
-          </div>
-        </div>
-
-        {/* Welcome Text */}
-        <h2 className="font-display text-2xl md:text-3xl text-white/90 mb-3">
-          Welcome to Our Virtual Concierge
-        </h2>
-        <p className="text-white/50 mb-10 text-base max-w-md mx-auto">
-          Select your experience to continue
-        </p>
-
-        {/* Two Cards */}
-        <div className="grid sm:grid-cols-2 gap-4 md:gap-6 mb-12">
+        {/* Cards Section */}
+        <div className="grid md:grid-cols-2 gap-4 md:gap-6 mb-12">
           {/* Regular User Card */}
           <Link
             to="/chat"
-            className="group relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 md:p-8 text-left transition-all duration-300 hover:border-hotel-gold/50 hover:bg-white/10 hover:scale-[1.02] hover:shadow-2xl hover:shadow-hotel-gold/20"
+            className="group relative overflow-hidden bg-gradient-to-br from-hotel-gold/20 via-hotel-gold/10 to-transparent backdrop-blur-sm border border-hotel-gold/30 rounded-3xl p-6 md:p-8 text-left transition-all duration-500 hover:border-hotel-gold/60 hover:shadow-2xl hover:shadow-hotel-gold/20 hover:-translate-y-1"
           >
-            <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-              <div className="w-8 h-8 rounded-full bg-hotel-gold/20 flex items-center justify-center">
-                <span className="text-hotel-gold text-lg">→</span>
+            {/* Shine effect on hover */}
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+            </div>
+
+            {/* Icon */}
+            <div className="relative mb-6">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-hotel-gold to-hotel-gold-dark flex items-center justify-center shadow-lg shadow-hotel-gold/40 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                <MessageCircle className="w-8 h-8 text-white" />
+              </div>
+              <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-green-500 flex items-center justify-center border-2 border-hotel-dark">
+                <Sparkles className="w-3 h-3 text-white" />
               </div>
             </div>
 
-            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-hotel-gold to-hotel-gold-dark flex items-center justify-center mb-5 group-hover:scale-110 transition-transform shadow-lg shadow-hotel-gold/30">
-              <MessageCircle className="w-7 h-7 text-white" />
-            </div>
+            {/* Content */}
+            <div className="relative">
+              <h3 className="text-white font-display text-xl md:text-2xl mb-2 group-hover:text-hotel-gold transition-colors">
+                Guest Chat
+              </h3>
+              <p className="text-white/50 text-sm md:text-base leading-relaxed mb-4">
+                Ask questions about rooms, dining, amenities, and local attractions
+              </p>
 
-            <h3 className="text-white font-display text-xl mb-2">Regular User</h3>
-            <p className="text-white/50 text-sm leading-relaxed">
-              Chat with our AI concierge to get answers about rooms, amenities, and services
-            </p>
+              {/* CTA */}
+              <div className="inline-flex items-center gap-2 text-hotel-gold font-medium text-sm group-hover:gap-3 transition-all">
+                <span>Start chatting</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </div>
           </Link>
 
           {/* Admin Card */}
           <Link
             to="/admin"
-            className="group relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 md:p-8 text-left transition-all duration-300 hover:border-white/30 hover:bg-white/10 hover:scale-[1.02] hover:shadow-2xl"
+            className="group relative overflow-hidden bg-gradient-to-br from-white/10 via-white/5 to-transparent backdrop-blur-sm border border-white/10 rounded-3xl p-6 md:p-8 text-left transition-all duration-500 hover:border-white/30 hover:shadow-2xl hover:-translate-y-1"
           >
-            <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-              <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
-                <span className="text-white/70 text-lg">→</span>
+            {/* Shine effect on hover */}
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+            </div>
+
+            {/* Icon */}
+            <div className="relative mb-6">
+              <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center group-hover:bg-white/20 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                <Settings className="w-8 h-8 text-white/80" />
               </div>
             </div>
 
-            <div className="w-14 h-14 rounded-xl bg-white/10 flex items-center justify-center mb-5 group-hover:scale-110 group-hover:bg-white/20 transition-all">
-              <Settings className="w-7 h-7 text-white/80" />
-            </div>
+            {/* Content */}
+            <div className="relative">
+              <h3 className="text-white font-display text-xl md:text-2xl mb-2 group-hover:text-white transition-colors">
+                Admin Panel
+              </h3>
+              <p className="text-white/50 text-sm md:text-base leading-relaxed mb-4">
+                Upload knowledge base, view analytics, and manage chatbot settings
+              </p>
 
-            <h3 className="text-white font-display text-xl mb-2">Admin</h3>
-            <p className="text-white/50 text-sm leading-relaxed">
-              Manage knowledge base, view statistics, and monitor chat activity
-            </p>
+              {/* CTA */}
+              <div className="inline-flex items-center gap-2 text-white/70 font-medium text-sm group-hover:text-white group-hover:gap-3 transition-all">
+                <span>Open dashboard</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </div>
           </Link>
         </div>
 
-        {/* Features */}
-        <div className="flex items-center justify-center gap-6 md:gap-8 text-white/40 text-xs">
-          <div className="flex items-center gap-2">
-            <Clock className="w-4 h-4" />
+        {/* Footer Features */}
+        <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8">
+          <div className="flex items-center gap-2 text-white/30 text-sm">
+            <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
+              <Clock className="w-4 h-4" />
+            </div>
             <span>24/7 Available</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Shield className="w-4 h-4" />
+          <div className="flex items-center gap-2 text-white/30 text-sm">
+            <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
+              <Shield className="w-4 h-4" />
+            </div>
             <span>AI Powered</span>
+          </div>
+          <div className="flex items-center gap-2 text-white/30 text-sm">
+            <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
+              <Sparkles className="w-4 h-4" />
+            </div>
+            <span>Instant Answers</span>
           </div>
         </div>
       </div>
