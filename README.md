@@ -139,6 +139,8 @@ VITE_API_URL=http://localhost:3001
    TURSO_DATABASE_URL=libsql://your-db.turso.io
    TURSO_AUTH_TOKEN=your-token
    N8N_WEBHOOK_URL=your-n8n-webhook-url
+   RESEND_API_KEY=re_xxxxxxxxxx
+   CONTACT_EMAIL=idan@tauga.ai
    NODE_ENV=production
    ```
 5. Deploy and copy your URL (e.g., `https://your-backend.onrender.com`)

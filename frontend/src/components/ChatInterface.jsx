@@ -523,7 +523,7 @@ function ChatInterface() {
         )}
 
         {/* Input Area */}
-        <div className="border-t border-gray-200 bg-white sticky bottom-0">
+        <div className="border-t border-gray-200 bg-white flex-shrink-0">
           {/* Quick Suggestions Panel */}
           <div className={`overflow-hidden transition-all duration-300 ${showQuickPanel ? 'max-h-48' : 'max-h-0'}`}>
             <div className="p-3 md:p-4 pb-0 border-b border-gray-100">

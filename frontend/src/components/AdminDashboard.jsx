@@ -453,7 +453,22 @@ function AdminDashboard() {
   // Dismiss individual question
   const dismissQuestion = (id) => {
     setDismissedQuestions(prev => new Set([...prev, id]))
+    setStats(prev => ({
+      ...prev,
+      unansweredCount: Math.max(0, (prev.unansweredCount || 0) - 1)
+    }))
     showToast('Question dismissed', 'success')
+  }
+
+  // Dismiss all visible questions
+  const dismissAllQuestions = () => {
+    const ids = filteredQuestions.map(q => q.id)
+    setDismissedQuestions(prev => new Set([...prev, ...ids]))
+    setStats(prev => ({
+      ...prev,
+      unansweredCount: Math.max(0, (prev.unansweredCount || 0) - ids.length)
+    }))
+    showToast(`${ids.length} questions dismissed`, 'success')
   }
 
   // Export unanswered questions
@@ -704,18 +719,28 @@ function AdminDashboard() {
                 </div>
                 <div className="flex items-center gap-2">
                   {filteredQuestions.length > 0 && (
-                    <button
-                      onClick={exportQuestions}
-                      className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-gray-500 hover:text-hotel-gold hover:bg-hotel-gold/5 rounded-lg transition-colors"
-                      aria-label="Export questions as CSV"
-                    >
-                      {copiedExport ? (
-                        <Check className="w-3.5 h-3.5 text-emerald-500" />
-                      ) : (
-                        <Download className="w-3.5 h-3.5" />
-                      )}
-                      <span className="hidden sm:inline">{copiedExport ? 'Copied!' : 'Export'}</span>
-                    </button>
+                    <>
+                      <button
+                        onClick={exportQuestions}
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-gray-500 hover:text-hotel-gold hover:bg-hotel-gold/5 rounded-lg transition-colors"
+                        aria-label="Export questions as CSV"
+                      >
+                        {copiedExport ? (
+                          <Check className="w-3.5 h-3.5 text-emerald-500" />
+                        ) : (
+                          <Download className="w-3.5 h-3.5" />
+                        )}
+                        <span className="hidden sm:inline">{copiedExport ? 'Copied!' : 'Export'}</span>
+                      </button>
+                      <button
+                        onClick={dismissAllQuestions}
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-gray-500 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
+                        aria-label="Clear all unanswered questions"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                        <span className="hidden sm:inline">Clear all</span>
+                      </button>
+                    </>
                   )}
                   <button
                     onClick={() => setShowUnanswered(false)}
