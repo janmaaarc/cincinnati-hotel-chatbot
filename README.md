@@ -2,24 +2,35 @@
 
 A virtual concierge chatbot system for Cincinnati Hotel, featuring an AI-powered chat interface and admin dashboard.
 
+## Live Demo
+
+- **Frontend**: https://cincinnati-hotel-chatbot.vercel.app
+- **Backend**: https://cincinnati-hotel-backend-enn5.onrender.com
+
 ## Overview
 
 This system allows hotel guests to chat with an AI assistant that answers questions about the hotel's facilities, rooms, prices, and services based on an uploaded PDF knowledge base.
 
 ## Features
 
-### Home Page
-- Two-button interface: **Guest Chat** and **Admin Panel**
+### Landing Page
+- Two-button interface: **Guest Services** and **Admin Panel**
 - Dark luxury theme with gold accents
-- 5-star branding and responsive design
+- 5-star branding with custom hotel logo
+- Smooth page transitions
 
 ### AI Virtual Concierge
 - Answers guest questions using uploaded PDF knowledge base
-- Quick suggestion buttons for common queries
+- Quick action buttons:
+  - What are your room rates?
+  - What time is check-in?
+  - Is WiFi free?
+  - Do you have parking?
+  - What restaurants are on-site?
+  - Do you have a spa?
 - Real-time typing indicators
 - Contact form capture when AI cannot answer
 - Chat persistence across sessions
-- Retry mechanism on failed requests
 
 ### Admin Dashboard
 - Real-time statistics via Socket.io
@@ -30,32 +41,23 @@ This system allows hotel guests to chat with an AI assistant that answers questi
 
 ## Tech Stack
 
-### Frontend
-- React 18 + Vite
-- Tailwind CSS v4
-- React Router v7
-- Socket.io Client
-
-### Backend
-- Node.js + Express
-- Turso (LibSQL) - Edge SQLite database
-- Socket.io (WebSocket)
-- Resend for emails
-
-### AI Integration
-- n8n workflow automation
-- OpenAI GPT-4o-mini
-- PDF knowledge base parsing
+| Layer | Technology |
+|-------|------------|
+| **Frontend** | React 18, Vite, Tailwind CSS v4, React Router v7 |
+| **Backend** | Node.js, Express, Socket.io |
+| **Database** | Turso (LibSQL) - Edge SQLite |
+| **AI** | n8n workflow + OpenAI GPT-4o-mini |
+| **Hosting** | Vercel (frontend) + Render (backend) |
 
 ## Quick Start
 
 ### Prerequisites
 - Node.js 18+
 - Turso account (free tier)
-- n8n instance
+- n8n instance (cloud or self-hosted)
 - OpenAI API key
 
-### Installation
+### Local Development
 
 ```bash
 # Clone the repository
@@ -67,6 +69,7 @@ npm run install:all
 
 # Set up environment variables
 cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
 
 # Start development servers
 npm run dev
@@ -74,40 +77,60 @@ npm run dev
 
 ### Environment Variables
 
-Create `backend/.env`:
-
+**Backend** (`backend/.env`):
 ```env
 PORT=3001
-FRONTEND_URL=http://localhost:5173
-N8N_WEBHOOK_URL=https://your-n8n-instance.com/webhook/hotel-chat
+TURSO_DATABASE_URL=libsql://your-database.turso.io
+TURSO_AUTH_TOKEN=your-auth-token
+N8N_WEBHOOK_URL=https://your-n8n.com/webhook/hotel-chat
 RESEND_API_KEY=re_xxxxxxxxxx
 CONTACT_EMAIL=your-email@example.com
-
-# Turso Database
-TURSO_DATABASE_URL=libsql://your-database-name.turso.io
-TURSO_AUTH_TOKEN=your-auth-token
 ```
 
-### Turso Setup
-
-```bash
-# Install CLI
-curl -sSfL https://get.tur.so/install.sh | bash
-
-# Create database
-turso auth signup
-turso db create hotel-chatbot
-
-# Get credentials
-turso db show hotel-chatbot --url
-turso db tokens create hotel-chatbot
+**Frontend** (`frontend/.env`):
+```env
+VITE_API_URL=http://localhost:3001
 ```
+
+## Deployment
+
+### Step 1: Deploy Backend on Render
+
+1. Go to https://render.com → **New** → **Web Service**
+2. Connect your GitHub repo
+3. Configure:
+   - **Root Directory**: `backend`
+   - **Build Command**: `npm install`
+   - **Start Command**: `npm start`
+4. Add environment variables:
+   ```
+   TURSO_DATABASE_URL=libsql://your-db.turso.io
+   TURSO_AUTH_TOKEN=your-token
+   N8N_WEBHOOK_URL=your-n8n-webhook-url
+   NODE_ENV=production
+   ```
+5. Deploy and copy your URL (e.g., `https://your-backend.onrender.com`)
+
+### Step 2: Deploy Frontend on Vercel
+
+1. Go to https://vercel.com → Import your repo
+2. It will auto-detect settings from `vercel.json`
+3. Add environment variable:
+   - `VITE_API_URL` = `https://your-backend.onrender.com`
+4. Deploy
+
+### Step 3: Configure n8n
+
+1. Import `n8n/hotel-chatbot-workflow.json` into n8n
+2. Add OpenAI API credentials
+3. Activate the workflow
+4. Copy webhook URL to backend's `N8N_WEBHOOK_URL`
 
 ## Pages
 
 | Route | Description |
 |-------|-------------|
-| `/` | Home page with Guest Chat & Admin buttons |
+| `/` | Landing page with Guest Services & Admin buttons |
 | `/chat` | AI virtual concierge chat interface |
 | `/admin` | Statistics dashboard and PDF upload |
 
@@ -117,45 +140,21 @@ turso db tokens create hotel-chatbot
 |--------|----------|-------------|
 | POST | `/api/chat/session` | Create new chat session |
 | POST | `/api/chat/message` | Send message to AI |
-| GET | `/api/chat/session/:id` | Get session messages |
 | POST | `/api/contact` | Submit callback request |
 | GET | `/api/admin/stats` | Fetch dashboard statistics |
 | GET | `/api/admin/pdf-info` | Get PDF knowledge base info |
 | POST | `/api/admin/upload-pdf` | Upload PDF (max 10MB) |
 | GET | `/api/health` | Health check |
 
-## n8n Workflow Setup
-
-1. Import `n8n/hotel-chatbot-workflow.json` into n8n
-2. Configure OpenAI API credentials
-3. Activate the workflow
-4. Copy webhook URL to `.env`
-
-## Deployment
-
-### Vercel (Frontend) + Render (Backend)
-
-Frontend deploys automatically via `vercel.json`.
-
-Backend environment variables:
-```env
-NODE_ENV=production
-PORT=3001
-FRONTEND_URL=https://your-frontend.vercel.app
-N8N_WEBHOOK_URL=https://your-n8n.com/webhook/hotel-chat
-RESEND_API_KEY=re_xxxxxxxxxx
-CONTACT_EMAIL=your-email@example.com
-TURSO_DATABASE_URL=libsql://your-db.turso.io
-TURSO_AUTH_TOKEN=your-token
-```
-
 ## Design System
 
 | Token | Hex | Usage |
 |-------|-----|-------|
-| `hotel-gold` | #d4af37 | Primary brand |
-| `hotel-dark` | #1a1a1a | Background |
+| `hotel-gold` | #d4af37 | Primary brand color |
+| `hotel-gold-dark` | #b8962e | Hover states |
+| `hotel-dark` | #1a1a1a | Dark backgrounds |
 | `hotel-charcoal` | #2c2c2c | Text |
+| `hotel-cream` | #faf8f5 | Light backgrounds |
 
 ## License
 
