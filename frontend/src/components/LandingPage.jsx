@@ -5,7 +5,8 @@ import {
   Wifi, Car, Coffee, Utensils, Dumbbell, Waves,
   Clock, Shield, ChevronDown, ChevronUp, Menu, X,
   Facebook, Instagram, Twitter,
-  Quote, Music, Landmark, ShoppingBag, TreePine
+  Quote, Music, Landmark, ShoppingBag, TreePine,
+  Home, BedDouble, MessageCircle
 } from 'lucide-react'
 
 const AMENITIES = [
@@ -200,7 +201,7 @@ function LandingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white overflow-x-hidden">
       {/* Skip to main content - Accessibility */}
       <a
         href="#main-content"
@@ -368,10 +369,10 @@ function LandingPage() {
                 <span className="ml-2 text-white/80 text-sm md:text-base">Luxury 5-Star Experience</span>
               </div>
 
-              <h2 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white mb-3 tracking-wide">
+              <h2 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-7xl text-white mb-3 tracking-wide">
                 Welcome to
               </h2>
-              <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl text-hotel-gold mb-6 tracking-wide">
+              <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-8xl text-hotel-gold mb-6 tracking-wide">
                 Cincinnati Hotel
               </h1>
 
@@ -711,7 +712,7 @@ function LandingPage() {
         </div>
 
         {/* Main Footer Content - Enhanced */}
-        <div className="pt-14 md:pt-20 pb-8 px-4 md:px-6">
+        <div className="pt-14 md:pt-20 pb-24 md:pb-8 px-4 md:px-6">
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-8 mb-14">
               {/* Brand Column - Larger */}
@@ -851,12 +852,12 @@ function LandingPage() {
                   <div className="hidden sm:block w-1 h-1 bg-white/20 rounded-full"></div>
                   <p className="text-white/60 text-sm">All rights reserved</p>
                 </div>
-                <div className="flex items-center gap-1">
-                  {['Privacy Policy', 'Terms of Service', 'Accessibility'].map((item, index) => (
+                <div className="flex flex-wrap items-center justify-center gap-1">
+                  {['Privacy Policy', 'Terms of Service', 'Accessibility'].map((item) => (
                     <a
                       key={item}
                       href="#"
-                      className="text-white/60 hover:text-hotel-gold text-sm transition-colors px-3 py-1 rounded-lg hover:bg-white/5"
+                      className="text-white/60 hover:text-hotel-gold text-xs sm:text-sm transition-colors px-2 sm:px-3 py-1 rounded-lg hover:bg-white/5"
                     >
                       {item}
                     </a>
@@ -868,11 +869,52 @@ function LandingPage() {
         </div>
       </footer>
 
-      {/* Back to Top Button */}
+      {/* Mobile Bottom Navigation */}
+      <nav
+        className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-hotel-dark/95 backdrop-blur-sm border-t border-white/10 safe-area-pb"
+        aria-label="Mobile navigation"
+      >
+        <div className="flex items-center justify-around h-16">
+          <button
+            onClick={() => scrollToTop()}
+            className="flex flex-col items-center justify-center gap-1 w-16 h-full text-white/70 hover:text-hotel-gold transition-colors"
+            aria-label="Go to home"
+          >
+            <Home className="w-5 h-5" aria-hidden="true" />
+            <span className="text-[10px] font-medium">Home</span>
+          </button>
+          <button
+            onClick={() => scrollToSection('rooms')}
+            className="flex flex-col items-center justify-center gap-1 w-16 h-full text-white/70 hover:text-hotel-gold transition-colors"
+            aria-label="View rooms"
+          >
+            <BedDouble className="w-5 h-5" aria-hidden="true" />
+            <span className="text-[10px] font-medium">Rooms</span>
+          </button>
+          <Link
+            to="/chat"
+            className="flex flex-col items-center justify-center gap-1 w-16 h-full text-white/70 hover:text-hotel-gold transition-colors"
+            aria-label="Chat with concierge"
+          >
+            <MessageCircle className="w-5 h-5" aria-hidden="true" />
+            <span className="text-[10px] font-medium">Chat</span>
+          </Link>
+          <a
+            href="tel:+15135550123"
+            className="flex flex-col items-center justify-center gap-1 w-16 h-full text-hotel-gold hover:text-hotel-gold-dark transition-colors"
+            aria-label="Call to book"
+          >
+            <Phone className="w-5 h-5" aria-hidden="true" />
+            <span className="text-[10px] font-medium">Call</span>
+          </a>
+        </div>
+      </nav>
+
+      {/* Back to Top Button - adjusted position for mobile nav */}
       {showBackToTop && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-6 right-6 z-40 w-12 h-12 bg-hotel-gold hover:bg-hotel-gold-dark text-white rounded-full shadow-lg shadow-hotel-gold/30 flex items-center justify-center transition-all duration-300 hover:scale-110 animate-fadeIn"
+          className="fixed bottom-20 md:bottom-6 right-6 z-40 w-12 h-12 bg-hotel-gold hover:bg-hotel-gold-dark text-white rounded-full shadow-lg shadow-hotel-gold/30 flex items-center justify-center transition-all duration-300 hover:scale-110 animate-fadeIn"
           aria-label="Back to top"
         >
           <ChevronUp className="w-6 h-6" />
