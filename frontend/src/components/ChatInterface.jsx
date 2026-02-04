@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Send, ArrowLeft, Loader2, User, BedDouble, UtensilsCrossed, Clock, Wifi, Car, Sparkles } from 'lucide-react'
 import ContactForm from './ContactForm'
 import logger from '../utils/logger'
+import { getApiUrl } from '../config'
 
 const QUICK_SUGGESTIONS = [
   { icon: BedDouble, text: 'What are your room rates?' },
@@ -109,7 +110,7 @@ function ChatInterface() {
 
   const createSession = async () => {
     try {
-      const response = await fetch('/api/chat/session', {
+      const response = await fetch(getApiUrl('/api/chat/session'), {
         method: 'POST'
       })
       const data = await response.json()
@@ -132,7 +133,7 @@ function ChatInterface() {
 
   const sendMessageWithRetry = useCallback(async (text, retryCount = 0) => {
     try {
-      const response = await fetch('/api/chat/message', {
+      const response = await fetch(getApiUrl('/api/chat/message'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -226,7 +227,7 @@ function ChatInterface() {
 
   const handleContactSubmit = async (formData) => {
     try {
-      await fetch('/api/contact', {
+      await fetch(getApiUrl('/api/contact'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

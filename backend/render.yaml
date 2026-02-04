@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: cincinnati-hotel-backend
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: TURSO_DATABASE_URL
+        sync: false
+      - key: TURSO_AUTH_TOKEN
+        sync: false
+      - key: N8N_WEBHOOK_URL
+        sync: false

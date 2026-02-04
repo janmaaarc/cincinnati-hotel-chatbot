@@ -18,6 +18,7 @@ import {
   HelpCircle
 } from 'lucide-react'
 import logger from '../utils/logger'
+import { API_BASE_URL, getApiUrl } from '../config'
 
 const DEFAULT_STATS = {
   totalSessions: 0,
@@ -54,9 +55,7 @@ function AdminDashboard() {
     fetchStats()
     fetchPdfInfo()
 
-    const backendUrl = import.meta.env.PROD
-      ? window.location.origin
-      : 'http://localhost:3001'
+    const backendUrl = API_BASE_URL || (import.meta.env.PROD ? window.location.origin : 'http://localhost:3001')
 
     const socket = io(backendUrl, {
       transports: ['websocket', 'polling']
@@ -90,8 +89,8 @@ function AdminDashboard() {
     if (showRefreshing) setIsRefreshing(true)
     try {
       const url = range !== 'all'
-        ? `/api/admin/stats?range=${range}`
-        : '/api/admin/stats'
+        ? getApiUrl(`/api/admin/stats?range=${range}`)
+        : getApiUrl('/api/admin/stats')
       const response = await fetch(url)
       if (response.ok) {
         const data = await response.json()
@@ -121,7 +120,7 @@ function AdminDashboard() {
 
   const fetchPdfInfo = async () => {
     try {
-      const response = await fetch('/api/admin/pdf-info')
+      const response = await fetch(getApiUrl('/api/admin/pdf-info'))
       if (response.ok) {
         const data = await response.json()
         if (data.hasPdf) {
@@ -181,7 +180,7 @@ function AdminDashboard() {
     formData.append('pdf', file)
 
     try {
-      const response = await fetch('/api/admin/upload-pdf', {
+      const response = await fetch(getApiUrl('/api/admin/upload-pdf'), {
         method: 'POST',
         body: formData
       })
