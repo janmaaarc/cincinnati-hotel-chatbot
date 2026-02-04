@@ -5,8 +5,7 @@ import {
   Wifi, Car, Coffee, Utensils, Dumbbell, Waves,
   Clock, Shield, ChevronDown, ChevronUp, Menu, X,
   Facebook, Instagram, Twitter,
-  Quote, Music, Landmark, ShoppingBag, TreePine,
-  Home, BedDouble, MessageCircle
+  Quote, Music, Landmark, ShoppingBag, TreePine
 } from 'lucide-react'
 
 const AMENITIES = [
@@ -672,37 +671,37 @@ function LandingPage() {
       {/* Footer */}
       <footer id="contact" className="bg-hotel-dark" role="contentinfo">
         {/* CTA Banner */}
-        <div className="relative bg-hotel-cream py-20 md:py-24 px-4 md:px-6 overflow-hidden">
-          {/* Decorative background */}
-          <div className="absolute inset-0 opacity-50" aria-hidden="true">
+        <div className="relative bg-hotel-cream py-12 md:py-24 px-4 md:px-6 overflow-hidden">
+          {/* Decorative background - hidden on mobile for performance */}
+          <div className="absolute inset-0 opacity-50 hidden md:block" aria-hidden="true">
             <div className="absolute top-0 left-1/4 w-80 h-80 bg-hotel-gold/5 rounded-full blur-3xl"></div>
             <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-hotel-gold/5 rounded-full blur-3xl"></div>
           </div>
 
           <div className="relative max-w-3xl mx-auto text-center">
-            <p className="text-hotel-gold text-sm font-medium tracking-[0.2em] uppercase mb-4">
+            <p className="text-hotel-gold text-xs md:text-sm font-medium tracking-[0.15em] md:tracking-[0.2em] uppercase mb-2 md:mb-4">
               Ready to Experience Luxury?
             </p>
 
-            <h3 className="font-display text-4xl md:text-5xl text-hotel-charcoal mb-6 leading-tight">
+            <h3 className="font-display text-2xl md:text-5xl text-hotel-charcoal mb-3 md:mb-6 leading-tight">
               Your Perfect Stay Awaits
             </h3>
 
-            <p className="text-gray-600 text-lg md:text-xl mb-10 max-w-xl mx-auto leading-relaxed">
-              Book directly for the best rates, exclusive amenities, and personalized service
+            <p className="text-gray-600 text-sm md:text-xl mb-6 md:mb-10 max-w-xl mx-auto leading-relaxed">
+              Book directly for the best rates and personalized service
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6">
               <a
                 href="tel:+15135550123"
-                className="group inline-flex items-center gap-3 bg-hotel-gold hover:bg-hotel-gold-dark text-white px-12 py-5 rounded-full font-semibold text-lg transition-all duration-300 shadow-xl shadow-hotel-gold/30 hover:shadow-2xl hover:shadow-hotel-gold/40 hover:scale-105"
+                className="group inline-flex items-center gap-2 md:gap-3 bg-hotel-gold hover:bg-hotel-gold-dark text-white px-8 md:px-12 py-3 md:py-5 rounded-full font-semibold text-base md:text-lg transition-all duration-300 shadow-xl shadow-hotel-gold/30 hover:shadow-2xl hover:shadow-hotel-gold/40 hover:scale-105"
               >
-                <Phone className="w-5 h-5" aria-hidden="true" />
+                <Phone className="w-4 h-4 md:w-5 md:h-5" aria-hidden="true" />
                 <span>Call to Reserve</span>
               </a>
               <Link
                 to="/chat"
-                className="group inline-flex items-center gap-2 text-hotel-charcoal hover:text-hotel-gold font-medium transition-all duration-300"
+                className="group inline-flex items-center gap-2 text-hotel-charcoal hover:text-hotel-gold font-medium text-sm md:text-base transition-all duration-300"
               >
                 <span>Chat with Concierge</span>
                 <ChevronDown className="w-4 h-4 -rotate-90 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
@@ -711,12 +710,41 @@ function LandingPage() {
           </div>
         </div>
 
-        {/* Main Footer Content - Enhanced */}
-        <div className="pt-14 md:pt-20 pb-24 md:pb-8 px-4 md:px-6">
+        {/* Main Footer Content - Compact */}
+        <div className="pt-10 md:pt-20 pb-6 md:pb-8 px-4 md:px-6">
           <div className="max-w-6xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-8 mb-14">
-              {/* Brand Column - Larger */}
-              <div className="md:col-span-4 lg:col-span-5">
+            {/* Brand Section - Full width on mobile */}
+            <div className="text-center md:text-left mb-8 md:mb-0 md:hidden">
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-hotel-gold to-hotel-gold-dark flex items-center justify-center shadow-lg shadow-hotel-gold/20">
+                  <span className="text-white font-display text-xl font-bold">C</span>
+                </div>
+                <div>
+                  <h3 className="text-white font-display text-lg tracking-wider">CINCINNATI</h3>
+                  <p className="text-hotel-gold text-[10px] tracking-[0.2em] uppercase">Hotel & Suites</p>
+                </div>
+              </div>
+              <div className="flex items-center justify-center gap-3 mb-6">
+                {[
+                  { Icon: Facebook, label: 'Facebook' },
+                  { Icon: Instagram, label: 'Instagram' },
+                  { Icon: Twitter, label: 'Twitter' }
+                ].map(({ Icon, label }, index) => (
+                  <a
+                    key={index}
+                    href="#"
+                    className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white/70 hover:bg-hotel-gold hover:border-hotel-gold hover:text-white transition-all"
+                    aria-label={`Follow us on ${label}`}
+                  >
+                    <Icon className="w-4 h-4" aria-hidden="true" />
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-12 gap-6 md:gap-8 mb-8 md:mb-14">
+              {/* Brand Column - Desktop only */}
+              <div className="hidden md:block md:col-span-4 lg:col-span-5">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-hotel-gold to-hotel-gold-dark flex items-center justify-center shadow-lg shadow-hotel-gold/20">
                     <span className="text-white font-display text-2xl font-bold">C</span>
@@ -729,8 +757,6 @@ function LandingPage() {
                 <p className="text-white/70 text-base leading-relaxed mb-6 max-w-sm">
                   Experience timeless elegance and exceptional hospitality in the heart of downtown Cincinnati since 1998.
                 </p>
-
-                {/* Social Links - Enhanced */}
                 <div className="flex items-center gap-3">
                   {[
                     { Icon: Facebook, label: 'Facebook' },
@@ -749,20 +775,16 @@ function LandingPage() {
                 </div>
               </div>
 
-              {/* Quick Links */}
+              {/* Quick Links - col 1 on mobile */}
               <div className="md:col-span-2">
-                <h4 className="text-white font-semibold text-base mb-5 flex items-center gap-2">
-                  <span className="w-1 h-4 bg-hotel-gold rounded-full"></span>
-                  Explore
-                </h4>
-                <ul className="space-y-3">
-                  {['About', 'Amenities', 'Rooms', 'FAQ', 'Contact'].map((item) => (
+                <h4 className="text-white font-semibold text-sm md:text-base mb-3 md:mb-5">Explore</h4>
+                <ul className="space-y-2 md:space-y-3">
+                  {['About', 'Amenities', 'Rooms', 'FAQ'].map((item) => (
                     <li key={item}>
                       <button
                         onClick={() => scrollToSection(item.toLowerCase())}
-                        className="text-white/60 hover:text-hotel-gold text-sm transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-1 group"
+                        className="text-white/60 hover:text-hotel-gold text-sm transition-colors"
                       >
-                        <ChevronDown className="w-3 h-3 -rotate-90 opacity-0 group-hover:opacity-100 transition-opacity" />
                         {item}
                       </button>
                     </li>
@@ -770,75 +792,37 @@ function LandingPage() {
                 </ul>
               </div>
 
-              {/* Contact Info */}
+              {/* Contact Info - col 2 on mobile */}
               <div className="md:col-span-3">
-                <h4 className="text-white font-semibold text-base mb-5 flex items-center gap-2">
-                  <span className="w-1 h-4 bg-hotel-gold rounded-full"></span>
-                  Contact
-                </h4>
-                <ul className="space-y-4">
+                <h4 className="text-white font-semibold text-sm md:text-base mb-3 md:mb-5">Contact</h4>
+                <ul className="space-y-2 md:space-y-3 text-sm">
                   <li>
-                    <a href="tel:+15135550123" className="flex items-start gap-3 text-white/60 hover:text-hotel-gold text-sm transition-colors group">
-                      <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0 group-hover:border-hotel-gold/30 group-hover:bg-hotel-gold/10 transition-colors">
-                        <Phone className="w-3.5 h-3.5" aria-hidden="true" />
-                      </div>
-                      <div>
-                        <p className="text-white/60 text-xs mb-0.5">Phone</p>
-                        <p className="text-white/80 group-hover:text-hotel-gold transition-colors">+1 (513) 555-0123</p>
-                      </div>
+                    <a href="tel:+15135550123" className="text-white/60 hover:text-hotel-gold transition-colors flex items-center gap-2">
+                      <Phone className="w-3.5 h-3.5 text-hotel-gold" aria-hidden="true" />
+                      <span className="text-xs md:text-sm">+1 (513) 555-0123</span>
                     </a>
                   </li>
                   <li>
-                    <a href="mailto:info@cincinnatihotel.com" className="flex items-start gap-3 text-white/60 hover:text-hotel-gold text-sm transition-colors group">
-                      <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0 group-hover:border-hotel-gold/30 group-hover:bg-hotel-gold/10 transition-colors">
-                        <Mail className="w-3.5 h-3.5" aria-hidden="true" />
-                      </div>
-                      <div>
-                        <p className="text-white/60 text-xs mb-0.5">Email</p>
-                        <p className="text-white/80 group-hover:text-hotel-gold transition-colors">info@cincinnatihotel.com</p>
-                      </div>
+                    <a href="mailto:info@cincinnatihotel.com" className="text-white/60 hover:text-hotel-gold transition-colors flex items-center gap-2">
+                      <Mail className="w-3.5 h-3.5 text-hotel-gold" aria-hidden="true" />
+                      <span className="text-xs md:text-sm break-all">info@cincinnatihotel.com</span>
                     </a>
                   </li>
-                  <li className="flex items-start gap-3 text-sm">
-                    <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0">
-                      <MapPin className="w-3.5 h-3.5 text-white/60" aria-hidden="true" />
-                    </div>
-                    <div>
-                      <p className="text-white/60 text-xs mb-0.5">Address</p>
-                      <p className="text-white/80">123 Main Street<br />Cincinnati, OH 45202</p>
-                    </div>
+                  <li className="flex items-start gap-2 text-white/60">
+                    <MapPin className="w-3.5 h-3.5 text-hotel-gold flex-shrink-0 mt-0.5" aria-hidden="true" />
+                    <span className="text-xs md:text-sm">123 Main St, Cincinnati, OH</span>
                   </li>
                 </ul>
               </div>
 
-              {/* Hours */}
-              <div className="md:col-span-3 lg:col-span-2">
-                <h4 className="text-white font-semibold text-base mb-5 flex items-center gap-2">
-                  <span className="w-1 h-4 bg-hotel-gold rounded-full"></span>
-                  Hours
-                </h4>
-                <table className="w-full">
-                  <tbody className="text-sm">
-                    <tr>
-                      <td className="text-white/70 py-2">Check-in</td>
-                      <td className="text-white font-medium py-2 text-right">3:00 PM</td>
-                    </tr>
-                    <tr>
-                      <td colSpan={2} className="py-0"><div className="h-px bg-white/10"></div></td>
-                    </tr>
-                    <tr>
-                      <td className="text-white/70 py-2">Check-out</td>
-                      <td className="text-white font-medium py-2 text-right">11:00 AM</td>
-                    </tr>
-                    <tr>
-                      <td colSpan={2} className="py-0"><div className="h-px bg-white/10"></div></td>
-                    </tr>
-                    <tr>
-                      <td className="text-white/70 py-2">Front Desk</td>
-                      <td className="text-hotel-gold font-semibold py-2 text-right">24/7</td>
-                    </tr>
-                  </tbody>
-                </table>
+              {/* Hours - full width on mobile, hidden on small screens */}
+              <div className="col-span-2 md:col-span-3 lg:col-span-2">
+                <h4 className="text-white font-semibold text-sm md:text-base mb-3 md:mb-5">Hours</h4>
+                <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm md:block md:space-y-2">
+                  <p className="text-white/60">Check-in: <span className="text-white">3:00 PM</span></p>
+                  <p className="text-white/60">Check-out: <span className="text-white">11:00 AM</span></p>
+                  <p className="text-white/60">Front Desk: <span className="text-hotel-gold font-semibold">24/7</span></p>
+                </div>
               </div>
             </div>
 
@@ -869,52 +853,11 @@ function LandingPage() {
         </div>
       </footer>
 
-      {/* Mobile Bottom Navigation */}
-      <nav
-        className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-hotel-dark/95 backdrop-blur-sm border-t border-white/10 safe-area-pb"
-        aria-label="Mobile navigation"
-      >
-        <div className="flex items-center justify-around h-16">
-          <button
-            onClick={() => scrollToTop()}
-            className="flex flex-col items-center justify-center gap-1 w-16 h-full text-white/70 hover:text-hotel-gold transition-colors"
-            aria-label="Go to home"
-          >
-            <Home className="w-5 h-5" aria-hidden="true" />
-            <span className="text-[10px] font-medium">Home</span>
-          </button>
-          <button
-            onClick={() => scrollToSection('rooms')}
-            className="flex flex-col items-center justify-center gap-1 w-16 h-full text-white/70 hover:text-hotel-gold transition-colors"
-            aria-label="View rooms"
-          >
-            <BedDouble className="w-5 h-5" aria-hidden="true" />
-            <span className="text-[10px] font-medium">Rooms</span>
-          </button>
-          <Link
-            to="/chat"
-            className="flex flex-col items-center justify-center gap-1 w-16 h-full text-white/70 hover:text-hotel-gold transition-colors"
-            aria-label="Chat with concierge"
-          >
-            <MessageCircle className="w-5 h-5" aria-hidden="true" />
-            <span className="text-[10px] font-medium">Chat</span>
-          </Link>
-          <a
-            href="tel:+15135550123"
-            className="flex flex-col items-center justify-center gap-1 w-16 h-full text-hotel-gold hover:text-hotel-gold-dark transition-colors"
-            aria-label="Call to book"
-          >
-            <Phone className="w-5 h-5" aria-hidden="true" />
-            <span className="text-[10px] font-medium">Call</span>
-          </a>
-        </div>
-      </nav>
-
-      {/* Back to Top Button - adjusted position for mobile nav */}
+      {/* Back to Top Button */}
       {showBackToTop && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-20 md:bottom-6 right-6 z-40 w-12 h-12 bg-hotel-gold hover:bg-hotel-gold-dark text-white rounded-full shadow-lg shadow-hotel-gold/30 flex items-center justify-center transition-all duration-300 hover:scale-110 animate-fadeIn"
+          className="fixed bottom-6 right-6 z-40 w-12 h-12 bg-hotel-gold hover:bg-hotel-gold-dark text-white rounded-full shadow-lg shadow-hotel-gold/30 flex items-center justify-center transition-all duration-300 hover:scale-110 animate-fadeIn"
           aria-label="Back to top"
         >
           <ChevronUp className="w-6 h-6" />
