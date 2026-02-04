@@ -179,14 +179,7 @@ VITE_API_URL=http://localhost:3001
 | POST | `/api/chat/message` | Send message to AI |
 | POST | `/api/contact` | Submit callback request |
 | GET | `/api/admin/stats` | Fetch dashboard statistics |
-| GET | `/api/admin/pdf-info` | Get PDF knowledge base info |
 | POST | `/api/admin/upload-pdf` | Upload PDF (max 10MB) |
-| GET | `/api/admin/contacts` | Get contact submissions |
-| DELETE | `/api/admin/contacts/:id` | Delete single contact |
-| DELETE | `/api/admin/contacts` | Bulk delete contacts |
-| GET | `/api/admin/sessions` | Get chat sessions |
-| DELETE | `/api/admin/sessions/:id` | Delete single session |
-| DELETE | `/api/admin/sessions` | Bulk delete sessions |
 | GET | `/api/health` | Health check |
 
 ## Design System
