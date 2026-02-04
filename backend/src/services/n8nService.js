@@ -24,10 +24,28 @@ export async function sendToN8n({ message, pdfContent, sessionId }) {
     })
 
     if (!response.ok) {
+      const errorText = await response.text().catch(() => 'No error body')
+      console.error('n8n error response:', response.status, errorText)
       throw new Error(`n8n request failed with status ${response.status}`)
     }
 
-    const data = await response.json()
+    // Get raw text first for debugging
+    const rawText = await response.text()
+    console.log('n8n raw response:', rawText.substring(0, 500))
+
+    if (!rawText || rawText.trim() === '') {
+      console.error('n8n returned empty response')
+      throw new Error('n8n returned empty response')
+    }
+
+    let data
+    try {
+      data = JSON.parse(rawText)
+    } catch (parseError) {
+      console.error('Failed to parse n8n response:', parseError.message)
+      console.error('Raw response was:', rawText)
+      throw new Error(`Invalid JSON from n8n: ${rawText.substring(0, 100)}`)
+    }
 
     return {
       answer: data.answer || "I'm sorry, I couldn't process your request.",

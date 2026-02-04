@@ -24,14 +24,24 @@ export async function getStats(db) {
     )
     const unansweredCount = unansweredCountResult.rows[0]?.count || 0
 
+    // Get user questions that resulted in unanswered bot responses
+    // The answer_found flag is on assistant messages, so we need to find
+    // the preceding user message for each unanswered assistant response
     const unansweredQuestionsResult = await db.execute(`
-      SELECT m.content as question, m.created_at as timestamp
-      FROM messages m
-      WHERE m.answer_found = 0 AND m.role = 'user'
-      ORDER BY m.created_at DESC
+      SELECT
+        (SELECT content FROM messages m2
+         WHERE m2.session_id = m1.session_id
+         AND m2.role = 'user'
+         AND m2.id < m1.id
+         ORDER BY m2.id DESC
+         LIMIT 1) as question,
+        m1.created_at as timestamp
+      FROM messages m1
+      WHERE m1.role = 'assistant' AND m1.answer_found = 0
+      ORDER BY m1.created_at DESC
       LIMIT 20
     `)
-    const unansweredQuestions = unansweredQuestionsResult.rows || []
+    const unansweredQuestions = unansweredQuestionsResult.rows.filter(row => row.question) || []
 
     return {
       totalSessions,
