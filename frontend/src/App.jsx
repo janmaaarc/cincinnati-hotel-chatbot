@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import SimpleLandingPage from './components/SimpleLandingPage'
-import LandingPage from './components/LandingPage'
 import ChatInterface from './components/ChatInterface'
 import AdminDashboard from './components/AdminDashboard'
 import FloatingChatButton from './components/FloatingChatButton'
@@ -13,7 +12,6 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<SimpleLandingPage />} />
-          <Route path="/landing" element={<LandingPage />} />
           <Route path="/chat" element={<ChatInterface />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="*" element={<NotFound />} />
