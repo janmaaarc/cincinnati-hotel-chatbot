@@ -78,7 +78,7 @@ function SimpleLandingPage() {
                   <MessageCircle className="w-7 h-7 md:w-8 md:h-8 text-white" aria-hidden="true" />
                 </div>
                 <div className="flex-grow min-w-0">
-                  <h3 className="text-white font-display text-lg md:text-xl mb-0.5">Guest Services</h3>
+                  <h3 className="text-white font-display text-lg md:text-xl mb-0.5">Regular User</h3>
                   <p className="text-white/80 text-sm">Chat with our AI concierge</p>
                 </div>
                 <div className="flex-shrink-0 w-10 h-10 rounded-full bg-hotel-gold/20 flex items-center justify-center group-hover:bg-hotel-gold/30 group-active:bg-hotel-gold/40 transition-colors" aria-hidden="true">
@@ -99,7 +99,7 @@ function SimpleLandingPage() {
                 <Settings className="w-7 h-7 md:w-8 md:h-8 text-white/70" aria-hidden="true" />
               </div>
               <div className="flex-grow min-w-0">
-                <h3 className="text-white font-display text-lg md:text-xl mb-0.5">Admin Panel</h3>
+                <h3 className="text-white font-display text-lg md:text-xl mb-0.5">Admin</h3>
                 <p className="text-white/70 text-sm">Manage knowledge base & analytics</p>
               </div>
               <div className="flex-shrink-0 w-10 h-10 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-white/10 group-active:bg-white/15 transition-colors" aria-hidden="true">
